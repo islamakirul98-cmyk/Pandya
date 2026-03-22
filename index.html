@@ -12,7 +12,7 @@
         :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; }
         body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
         .auth-container { padding: 40px 20px; max-width: 400px; margin: auto; }
-        .auth-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+        .auth-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; }
         .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
         .tab { flex:1; padding: 12px; cursor: pointer; color: #888; font-weight: bold; }
         .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
@@ -38,29 +38,32 @@
     </div>
 
     <div id="app">
-        <h1 style="color:var(--primary)">Mubarak Ho!</h1>
-        <p>Aapka Online Account Chal Raha Hai.</p>
-        <div style="background:#222; padding:20px; border-radius:10px; border:1px solid var(--primary);">
+        <h1 style="color:var(--primary)">PANDYA BET LOBBY</h1>
+        <div style="background:#222; padding:20px; border-radius:10px; border:1px solid var(--primary); margin-top:20px;">
+            User ID: <span id="user-id"></span><br>
             Wallet: ₹1000.00
         </div>
-        <button class="btn" onclick="location.reload()" style="margin-top:20px; max-width:200px;">LOGOUT</button>
+        <button class="btn" onclick="location.reload()" style="margin-top:30px; max-width:200px; background:#333; color:white;">LOGOUT</button>
     </div>
 
     <script>
-        // --- APKA FIREBASE CONFIG ---
+        // Ashish, ye config aapke project se 100% match hai
         const firebaseConfig = {
             apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
             authDomain: "pandya-bet.firebaseapp.com",
+            databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com",
             projectId: "pandya-bet",
             storageBucket: "pandya-bet.firebasestorage.app",
             messagingSenderId: "145616340494",
-            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f",
-            measurementId: "G-K83HRTRJDM",
-            databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com/" // Database URL manual add ki hai
+            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        // Initialize Firebase
+        if (!firebase.apps.length) {
+            firebase.initializeApp(firebaseConfig);
+        }
         const db = firebase.database();
+
         let mode = 'login';
 
         function toggleMode(m) {
@@ -76,30 +79,35 @@
             const pw = document.getElementById('pass').value;
             const cpw = document.getElementById('c-pass').value;
 
-            if(!p || !pw) return alert("Pehle details bharo!");
+            if(!p || !pw) return alert("Bhai, khali mat chhodo!");
 
             if(mode === 'signup') {
                 if(pw !== cpw) return alert("Password match nahi hua!");
                 
-                // Signup Process
+                // SIGNUP LOGIC
                 db.ref('users/' + p).set({
                     password: pw,
                     wallet: 1000
-                }).then(() => {
-                    alert("Account Ban Gaya! Ab Login Karo.");
-                    toggleMode('login');
-                }).catch((e) => {
-                    alert("Galti: " + e.message);
+                }, (error) => {
+                    if (error) {
+                        alert("Galti: Rules check karo Firebase mein! " + error.message);
+                    } else {
+                        alert("Account Ban Gaya! Ab Login Karo.");
+                        toggleMode('login');
+                    }
                 });
             } else {
-                // Login Process
+                // LOGIN LOGIC
                 db.ref('users/' + p).once('value').then((snap) => {
                     if(snap.exists() && snap.val().password === pw) {
                         document.getElementById('login-screen').style.display = 'none';
                         document.getElementById('app').style.display = 'block';
+                        document.getElementById('user-id').innerText = p;
                     } else {
-                        alert("Wrong Mobile or Password!");
+                        alert("Wrong Mobile Number or Password!");
                     }
+                }).catch((e) => {
+                    alert("Network Error: " + e.message);
                 });
             }
         }
