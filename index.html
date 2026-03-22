@@ -3,51 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Online</title>
+    <title>Pandya Bet - Official</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
 
     <style>
-        :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        .auth-container { padding: 40px 20px; max-width: 400px; margin: auto; }
+        :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; --success: #00c853; --danger: #ff5252; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; overflow-x: hidden; }
+        
+        /* Auth & Loading */
+        #auth-screen { padding: 50px 20px; max-width: 400px; margin: auto; text-align: center; }
         .auth-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; }
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
-        .tab { flex:1; padding: 12px; cursor: pointer; color: #888; font-weight: bold; }
-        .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-        input { width: 90%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
-        #app { display: none; padding: 20px; }
+        
+        /* Main Layout */
+        #main-app { display: none; }
+        header { background: #111; padding: 15px; border-bottom: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .logo { font-size: 20px; font-weight: bold; color: var(--primary); font-style: italic; }
+        .bal-box { background: #222; padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary); font-weight: bold; color: var(--primary); }
+
+        /* Lobby Grid */
+        #lobby { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 500px; margin: auto; }
+        .game-card { background: var(--card); border-radius: 15px; padding: 10px; border: 1px solid #30363d; cursor: pointer; text-align: center; }
+        .game-img { width: 100%; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
+        
+        /* Game Pages */
+        .game-page { display: none; padding: 15px; max-width: 500px; margin: auto; }
+        .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; cursor: pointer; }
+        
+        /* Aviator Specific */
+        #aviator-screen { height: 220px; background: #000; border-radius: 10px; position: relative; overflow: hidden; border: 1px solid #333; margin-bottom: 15px; }
+        #multiplier { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 45px; font-weight: 900; color: var(--primary); z-index: 10; }
+        #plane { position: absolute; bottom: 20px; left: 20px; font-size: 35px; transition: 0.1s linear; }
+
+        /* Controls */
+        input { width: 85%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 18px; }
+        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; }
+        .btn-cashout { background: var(--success); color: white; display: none; }
+        
+        /* Color Grid */
+        .color-btns { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 10px; }
+        .c-btn { padding: 15px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="login-screen" class="auth-container">
+    <div id="auth-screen">
         <h1 style="color:var(--primary); font-style: italic;">PANDYA BET</h1>
         <div class="auth-box">
-            <div class="tabs">
-                <div id="l-tab" class="tab active" onclick="toggleMode('login')">LOGIN</div>
-                <div id="s-tab" class="tab" onclick="toggleMode('signup')">SIGN UP</div>
+            <div style="display:flex; margin-bottom:20px; border-bottom:1px solid #444;">
+                <div id="l-tab" style="flex:1; padding:10px; cursor:pointer; color:var(--primary); border-bottom:2px solid var(--primary);" onclick="setMode('login')">LOGIN</div>
+                <div id="s-tab" style="flex:1; padding:10px; cursor:pointer; color:#888;" onclick="setMode('signup')">SIGN UP</div>
             </div>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button id="main-btn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
+            <button id="auth-btn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
         </div>
     </div>
 
-    <div id="app">
-        <h1 style="color:var(--primary)">PANDYA BET LOBBY</h1>
-        <div style="background:#222; padding:20px; border-radius:10px; border:1px solid var(--primary); margin-top:20px;">
-            User ID: <span id="user-id"></span><br>
-            Wallet: ₹1000.00
+    <div id="main-app">
+        <header>
+            <div class="logo">PANDYA BET</div>
+            <div class="bal-box">₹ <span id="wallet-bal">0.00</span></div>
+        </header>
+
+        <div id="lobby">
+            <div class="game-card" onclick="showPage('aviator-page')">
+                <img src="https://img.freepik.com/premium-vector/jet-plane-flying-sky-logo-design-vector_605910-142.jpg" class="game-img">
+                <div style="font-weight:bold;">AVIATOR 🚀</div>
+            </div>
+            <div class="game-card" onclick="showPage('color-page')">
+                <img src="https://img.freepik.com/free-vector/colorful-abstract-background_23-2148461457.jpg" class="game-img">
+                <div style="font-weight:bold;">COLOR TRADING 🎨</div>
+            </div>
+            <button class="btn" onclick="logout()" style="grid-column: span 2; background:#333; color:white; margin-top:20px;">LOGOUT</button>
         </div>
-        <button class="btn" onclick="location.reload()" style="margin-top:30px; max-width:200px; background:#333; color:white;">LOGOUT</button>
+
+        <div id="aviator-page" class="game-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div class="auth-box">
+                <div id="aviator-screen">
+                    <div id="multiplier">1.00x</div>
+                    <div id="plane">✈️</div>
+                </div>
+                <input type="number" id="jetAmt" value="50">
+                <button id="jetBetBtn" class="btn" onclick="startAviator()">BET</button>
+                <button id="jetCashBtn" class="btn btn-cashout" onclick="cashoutAviator()">CASH OUT</button>
+            </div>
+        </div>
+
+        <div id="color-page" class="game-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div class="auth-box">
+                <h3 id="colorStatus">Round Active</h3>
+                <div class="color-btns">
+                    <button class="c-btn" style="background:red" onclick="playColor('RED')">RED</button>
+                    <button class="c-btn" style="background:purple" onclick="playColor('VIOLET')">VIOLET</button>
+                    <button class="c-btn" style="background:green" onclick="playColor('GREEN')">GREEN</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
-        // Ashish, ye config aapke project se 100% match hai
+        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
             authDomain: "pandya-bet.firebaseapp.com",
@@ -57,60 +117,120 @@
             messagingSenderId: "145616340494",
             appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
-
-        // Initialize Firebase
-        if (!firebase.apps.length) {
-            firebase.initializeApp(firebaseConfig);
-        }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        
+        let currentUser = null;
+        let currentBal = 0;
+        let authMode = 'login';
+        let jetRunning = false;
+        let jetInterval;
+        let jetMult = 1.00;
 
-        let mode = 'login';
+        // --- AUTH & SESSION ---
+        window.onload = () => {
+            const saved = localStorage.getItem('p_user');
+            if(saved) checkLogin(saved);
+        };
 
-        function toggleMode(m) {
-            mode = m;
-            document.getElementById('l-tab').className = m === 'login' ? 'tab active' : 'tab';
-            document.getElementById('s-tab').className = m === 'signup' ? 'tab active' : 'tab';
-            document.getElementById('c-pass').style.display = m === 'signup' ? 'block' : 'none';
-            document.getElementById('main-btn').innerText = m === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
+        function setMode(m) {
+            authMode = m;
+            document.getElementById('l-tab').style.color = m==='login' ? 'var(--primary)' : '#888';
+            document.getElementById('s-tab').style.color = m==='signup' ? 'var(--primary)' : '#888';
+            document.getElementById('c-pass').style.display = m==='signup' ? 'block' : 'none';
+            document.getElementById('auth-btn').innerText = m==='login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
         }
 
-        function handleAuth() {
+        async function handleAuth() {
             const p = document.getElementById('phone').value;
             const pw = document.getElementById('pass').value;
-            const cpw = document.getElementById('c-pass').value;
+            if(!p || !pw) return alert("Details dalo!");
 
-            if(!p || !pw) return alert("Bhai, khali mat chhodo!");
-
-            if(mode === 'signup') {
+            if(authMode === 'signup') {
+                const cpw = document.getElementById('c-pass').value;
                 if(pw !== cpw) return alert("Password match nahi hua!");
-                
-                // SIGNUP LOGIC
-                db.ref('users/' + p).set({
-                    password: pw,
-                    wallet: 1000
-                }, (error) => {
-                    if (error) {
-                        alert("Galti: Rules check karo Firebase mein! " + error.message);
-                    } else {
-                        alert("Account Ban Gaya! Ab Login Karo.");
-                        toggleMode('login');
-                    }
-                });
+                await db.ref('users/' + p).set({ password: pw, wallet: 1000 });
+                alert("Account Ready! Login Karo.");
+                setMode('login');
             } else {
-                // LOGIN LOGIC
-                db.ref('users/' + p).once('value').then((snap) => {
-                    if(snap.exists() && snap.val().password === pw) {
-                        document.getElementById('login-screen').style.display = 'none';
-                        document.getElementById('app').style.display = 'block';
-                        document.getElementById('user-id').innerText = p;
-                    } else {
-                        alert("Wrong Mobile Number or Password!");
-                    }
-                }).catch((e) => {
-                    alert("Network Error: " + e.message);
-                });
+                const snap = await db.ref('users/' + p).once('value');
+                if(snap.exists() && snap.val().password === pw) {
+                    localStorage.setItem('p_user', p);
+                    checkLogin(p);
+                } else { alert("Wrong ID/Pass!"); }
             }
         }
-    </script>
-</body>
-</html>
+
+        function checkLogin(p) {
+            db.ref('users/' + p).on('value', (snap) => {
+                if(snap.exists()) {
+                    currentUser = p;
+                    currentBal = snap.val().wallet;
+                    document.getElementById('wallet-bal').innerText = currentBal.toFixed(2);
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                }
+            });
+        }
+
+        function logout() { localStorage.removeItem('p_user'); location.reload(); }
+
+        // --- NAVIGATION ---
+        function showPage(id) { document.getElementById('lobby').style.display='none'; document.getElementById(id).style.display='block'; }
+        function goHome() { document.querySelectorAll('.game-page').forEach(p=>p.style.display='none'); document.getElementById('lobby').style.display='grid'; }
+
+        // --- AVIATOR GAME ---
+        function startAviator() {
+            let amt = parseFloat(document.getElementById('jetAmt').value);
+            if(amt > currentBal) return alert("Paisa kam hai!");
+            
+            updateWallet(-amt);
+            jetRunning = true; jetMult = 1.00;
+            let time = 0;
+            let crash = (1 + Math.random() * 4).toFixed(2);
+            
+            document.getElementById('jetBetBtn').style.display = 'none';
+            document.getElementById('jetCashBtn').style.display = 'block';
+
+            jetInterval = setInterval(() => {
+                time += 0.1;
+                jetMult = Math.pow(1.06, time);
+                document.getElementById('multiplier').innerText = jetMult.toFixed(2) + "x";
+                document.getElementById('plane').style.left = (20 + time*15) + "px";
+                document.getElementById('plane').style.bottom = (20 + Math.pow(time, 1.5)*5) + "px";
+
+                if(jetMult >= crash) {
+                    clearInterval(jetInterval);
+                    jetRunning = false;
+                    document.getElementById('multiplier').style.color = 'red';
+                    setTimeout(resetJet, 2000);
+                }
+            }, 100);
+        }
+
+        function cashoutAviator() {
+            if(!jetRunning) return;
+            clearInterval(jetInterval);
+            let win = parseFloat(document.getElementById('jetAmt').value) * jetMult;
+            updateWallet(win);
+            alert("JEET GAYE! ₹" + win.toFixed(2));
+            resetJet();
+        }
+
+        function resetJet() {
+            jetRunning = false;
+            document.getElementById('jetBetBtn').style.display = 'block';
+            document.getElementById('jetCashBtn').style.display = 'none';
+            document.getElementById('multiplier').innerText = "1.00x";
+            document.getElementById('multiplier').style.color = "var(--primary)";
+            document.getElementById('plane').style.left = "20px";
+            document.getElementById('plane').style.bottom = "20px";
+        }
+
+        // --- COLOR GAME ---
+        async function playColor(choice) {
+            if(currentBal < 20) return alert("Min bet ₹20!");
+            updateWallet(-20);
+            const res = ['RED', 'GREEN', 'VIOLET'][Math.floor(Math.random()*3)];
+            if(choice === res) {
+                let win = res === 'VIO
