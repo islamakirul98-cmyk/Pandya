@@ -3,22 +3,25 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Bonus System</title>
+    <title>Pandya Bet - Game Edition</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #f39c12; --bg: #0b0e14; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .card { background: #1c2128; padding: 30px; border-radius: 20px; border: 1px solid var(--gold); max-width: 380px; margin: 50px auto; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
-        .logo { font-size: 35px; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 20px; }
-        input { width: 90%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 18px; }
-        .tab-btn { background: none; border: none; color: #888; font-weight: bold; cursor: pointer; padding: 10px 20px; }
-        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
+        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); max-width: 400px; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        .logo { font-size: 30px; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 15px; }
+        input { width: 85%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 8px; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; text-transform: uppercase; }
         
-        /* Bonus Popup Style */
-        #bonus-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
-        .popup-box { background: #1c2128; padding: 40px; border-radius: 20px; border: 2px solid var(--gold); text-align: center; }
+        /* Game UI */
+        .game-card { background: #000; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid #444; }
+        .team-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .odds { color: var(--gold); font-weight: bold; font-size: 18px; }
+        
+        /* Popups */
+        #bonus-popup, #bet-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; }
+        .popup-box { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
         
         #app-screen { display: none; }
     </style>
@@ -27,33 +30,56 @@
 
     <div id="auth-screen" class="card">
         <div class="logo">PANDYA BET</div>
-        <div style="margin-bottom:20px;">
-            <button class="tab-btn active" id="l-tab" onclick="setMode('login')">LOGIN</button>
-            <button class="tab-btn" id="s-tab" onclick="setMode('signup')">SIGN UP</button>
+        <div id="auth-inputs">
+            <input type="number" id="phone" placeholder="Mobile Number">
+            <input type="password" id="pass" placeholder="Password">
+            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
+            <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN</button>
+            <p id="toggle-text" style="color:#888; margin-top:15px; font-size:13px;" onclick="toggleMode()">Naya Account? Signup Karein</p>
         </div>
-        <input type="number" id="phone" placeholder="Mobile Number">
-        <input type="password" id="pass" placeholder="Password">
-        <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-        <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN NOW</button>
     </div>
 
     <div id="bonus-popup">
         <div class="popup-box">
-            <h2 style="color:var(--gold);">🎉 CONGRATULATIONS!</h2>
-            <p>You won a Random Welcome Bonus</p>
-            <h1 id="random-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
-            <button class="btn" onclick="claimBonus()">CLAIM NOW</button>
+            <h2 style="color:var(--gold);">🎉 MUBARAK HO!</h2>
+            <p>Aapko mila hai Welcome Bonus</p>
+            <h1 id="random-amt" style="font-size: 45px; margin: 15px 0;">₹0</h1>
+            <button class="btn" onclick="claimBonus()">CLAIM TO WALLET</button>
         </div>
     </div>
 
-    <div id="app-screen" class="card">
-        <div class="logo">PANDYA BET</div>
-        <h3>DASHBOARD ACTIVE ✅</h3>
-        <div style="background:#000; padding:20px; border-radius:15px; border:1px dashed var(--gold); margin:20px 0;">
-            <p style="color:#888; margin:0;">User ID: <span id="u-id" style="color:white;"></span></p>
-            <h1 style="color:var(--gold); margin:10px 0;">₹ <span id="u-bal">0.00</span></h1>
+    <div id="app-screen">
+        <div class="card" style="margin-top:0;">
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span id="u-id" style="font-size:12px; color:#888;">ID: ---</span>
+                <span style="background:var(--gold); color:black; padding:5px 12px; border-radius:20px; font-weight:bold;">₹ <span id="u-bal">0.00</span></span>
+            </div>
+            
+            <h3 style="color:var(--gold); margin-top:20px; text-align:left;">LIVE MATCHES</h3>
+            
+            <div class="game-card">
+                <div class="team-box">
+                    <span>🇮🇳 INDIA</span>
+                    <span class="odds" onclick="openBet('INDIA', 1.85)">1.85</span>
+                </div>
+                <div class="team-box">
+                    <span>🇦🇺 AUSTRALIA</span>
+                    <span class="odds" onclick="openBet('AUSTRALIA', 1.90)">1.90</span>
+                </div>
+            </div>
+
+            <button class="btn" style="background:#333; color:white; margin-top:30px;" onclick="location.reload()">LOGOUT</button>
         </div>
-        <button class="btn" style="background:#333; color:white;" onclick="location.reload()">LOGOUT</button>
+    </div>
+
+    <div id="bet-popup">
+        <div class="popup-box">
+            <h3 id="bet-team" style="color:var(--gold);">TEAM</h3>
+            <input type="number" id="bet-amount" placeholder="Enter Amount">
+            <p style="font-size:12px;">Winning: ₹ <span id="win-amt">0</span></p>
+            <button class="btn" onclick="placeBet()">PLACE BET</button>
+            <button class="btn" style="background:#444; color:white;" onclick="document.getElementById('bet-popup').style.display='none'">CANCEL</button>
+        </div>
     </div>
 
     <script>
@@ -69,16 +95,16 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        
         let mode = 'login';
         let currentBonus = 0;
-        let tempUser = "";
+        let loggedInUser = "";
 
-        function setMode(m) {
-            mode = m;
-            document.getElementById('l-tab').className = m === 'login' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('s-tab').className = m === 'signup' ? 'tab-btn active' : 'tab-btn';
-            document.getElementById('c-pass').style.display = m === 'signup' ? 'block' : 'none';
-            document.getElementById('main-btn').innerText = m === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
+        function toggleMode() {
+            mode = (mode === 'login') ? 'signup' : 'login';
+            document.getElementById('c-pass').style.display = (mode === 'signup') ? 'block' : 'none';
+            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'CREATE ACCOUNT' : 'LOGIN';
+            document.getElementById('toggle-text').innerText = (mode === 'signup') ? 'Account hai? Login Karein' : 'Naya Account? Signup Karein';
         }
 
         function handleAuth() {
@@ -90,42 +116,61 @@
 
             if(mode === 'signup') {
                 if(pw !== cpw) return alert("Password match nahi hua!");
-                db.ref('users/' + p).once('value').then(snap => {
-                    if(snap.exists()) return alert("Number already registered!");
-                    
-                    // Random Bonus generate (8 se 32 ke beech)
+                db.ref('users/'+p).once('value').then(snap => {
+                    if(snap.exists()) return alert("Number pehle se hai!");
                     currentBonus = Math.floor(Math.random() * (32 - 8 + 1)) + 8;
-                    tempUser = p;
-                    
-                    // Show Popup
+                    loggedInUser = p;
                     document.getElementById('random-amt').innerText = "₹" + currentBonus;
                     document.getElementById('bonus-popup').style.display = 'flex';
                 });
             } else {
-                db.ref('users/' + p).once('value').then(snap => {
+                db.ref('users/'+p).once('value').then(snap => {
                     if(snap.exists() && snap.val().password === pw) {
-                        showDashboard(p, snap.val().wallet);
-                    } else { alert("Wrong ID/Password!"); }
+                        loadApp(p);
+                    } else { alert("Galat Details!"); }
                 });
             }
         }
 
         function claimBonus() {
             const pw = document.getElementById('pass').value;
-            db.ref('users/' + tempUser).set({
-                password: pw,
-                wallet: currentBonus
-            }).then(() => {
+            db.ref('users/'+loggedInUser).set({ password: pw, wallet: currentBonus })
+            .then(() => {
                 document.getElementById('bonus-popup').style.display = 'none';
-                showDashboard(tempUser, currentBonus);
+                loadApp(loggedInUser);
             });
         }
 
-        function showDashboard(id, bal) {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('app-screen').style.display = 'block';
-            document.getElementById('u-id').innerText = id;
-            document.getElementById('u-bal').innerText = parseFloat(bal).toFixed(2);
+        function loadApp(p) {
+            loggedInUser = p;
+            db.ref('users/'+p).on('value', snap => {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                document.getElementById('u-id').innerText = "ID: " + p;
+                document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+            });
+        }
+
+        // --- GAME LOGIC ---
+        function openBet(team, odds) {
+            document.getElementById('bet-team').innerText = team + " ("+odds+")";
+            document.getElementById('bet-popup').style.display = 'flex';
+            document.getElementById('bet-amount').oninput = function() {
+                document.getElementById('win-amt').innerText = (this.value * odds).toFixed(2);
+            };
+        }
+
+        function placeBet() {
+            const amt = parseFloat(document.getElementById('bet-amount').value);
+            const bal = parseFloat(document.getElementById('u-bal').innerText);
+            
+            if(amt > bal) return alert("Paisa kam hai bhai!");
+            if(!amt || amt < 10) return alert("Min bet ₹10 hai!");
+
+            db.ref('users/'+loggedInUser+'/wallet').set(bal - amt).then(() => {
+                alert("Bet Lag Gayi! Good Luck.");
+                document.getElementById('bet-popup').style.display = 'none';
+            });
         }
     </script>
 </body>
