@@ -3,33 +3,40 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official App</title>
+    <title>Pandya Bet - Official Online</title>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.3/firebase-database-compat.js"></script>
+    
     <style>
-        :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
+        :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; --success: #00c853; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; text-align: center; }
         
-        /* Auth Screen */
+        /* Auth Screens */
         #auth-screen { padding: 40px 20px; max-width: 400px; margin: auto; }
         .auth-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-        .auth-tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
+        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
         .tab { flex:1; padding: 12px; cursor: pointer; color: #888; font-weight: bold; }
         .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
         
         input { width: 90%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 16px; outline: none; }
         .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
         
-        /* Main App */
+        /* Main App Layout */
         #main-app { display: none; }
         header { background: #111; padding: 15px; border-bottom: 2px solid var(--primary); display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
         .logo { font-size: 20px; font-weight: bold; color: var(--primary); font-style: italic; }
         .bal-box { background: #222; padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary); font-weight: bold; }
 
-        /* Lobby */
+        /* Lobby Grid */
         #lobby { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 500px; margin: auto; }
-        .game-icon { background: var(--card); border-radius: 15px; padding: 10px; border: 1px solid #30363d; cursor: pointer; }
+        .game-card { background: var(--card); border-radius: 15px; padding: 10px; border: 1px solid #30363d; cursor: pointer; }
         .game-img { width: 100%; border-radius: 10px; margin-bottom: 8px; }
+        
+        /* Game Sections */
         .game-page { display: none; padding: 15px; max-width: 500px; margin: auto; }
         .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; cursor: pointer; float: left; }
+        #screen { height: 200px; background: #000; border-radius: 10px; position: relative; overflow: hidden; }
+        #multiplier { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 40px; font-weight: bold; color: var(--primary); }
     </style>
 </head>
 <body>
@@ -37,118 +44,93 @@
     <div id="auth-screen">
         <h1 style="color:var(--primary); font-style: italic; letter-spacing: 2px;">PANDYA BET</h1>
         <div class="auth-box">
-            <div class="auth-tabs">
-                <div id="login-tab" class="tab active" onclick="toggleAuth('login')">LOGIN</div>
-                <div id="signup-tab" class="tab" onclick="toggleAuth('signup')">SIGN UP</div>
+            <div class="tabs">
+                <div id="l-tab" class="tab active" onclick="setAuth('login')">LOGIN</div>
+                <div id="s-tab" class="tab" onclick="setAuth('signup')">SIGN UP</div>
             </div>
-            
-            <div id="auth-form">
-                <input type="text" id="phone" placeholder="Mobile Number" autocomplete="username">
-                <input type="password" id="pass" placeholder="Password" autocomplete="current-password">
-                <input type="password" id="confirm-pass" placeholder="Confirm Password" style="display:none;">
-                <button id="auth-btn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
-            </div>
+            <input type="number" id="phone" placeholder="Mobile Number">
+            <input type="password" id="pass" placeholder="Password">
+            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
+            <button id="auth-btn" class="btn" onclick="runAuth()">LOGIN NOW</button>
         </div>
     </div>
 
     <div id="main-app">
         <header>
             <div class="logo">PANDYA BET</div>
-            <div class="bal-box">₹ <span id="wallet">1000.00</span></div>
+            <div class="bal-box">₹ <span id="u-wallet">1000.00</span></div>
         </header>
 
         <div id="lobby">
-            <div class="game-icon" onclick="openGame('aviator-page')">
+            <div class="game-card" onclick="openGame('aviator-box')">
                 <img src="https://img.freepik.com/premium-vector/jet-plane-flying-sky-logo-design-vector_605910-142.jpg" class="game-img">
                 <div>AVIATOR</div>
             </div>
-            <div class="game-icon" onclick="openGame('color-page')">
+            <div class="game-card" onclick="openGame('color-box')">
                 <img src="https://img.freepik.com/free-vector/colorful-abstract-background_23-2148461457.jpg" class="game-img">
                 <div>COLOR TRADING</div>
             </div>
-            <button class="btn" onclick="logout()" style="grid-column: span 2; background:#333; color:white; margin-top:20px;">LOGOUT</button>
+            <button class="btn" onclick="logout()" style="grid-column: span 2; background:#333; color:white;">LOGOUT</button>
         </div>
 
-        <div id="aviator-page" class="game-page">
+        <div id="aviator-box" class="game-page">
             <button class="back-btn" onclick="goHome()">← Back</button>
-            <div style="clear:both; background:#000; padding:20px; border-radius:10px;">
-                <h2 style="color:var(--primary)">AVIATOR LIVE</h2>
-                <button class="btn" onclick="alert('Betting logic is ready!')">START PLAYING</button>
+            <div style="clear:both" class="auth-box">
+                <div id="screen"><div id="multiplier">1.00x</div></div>
+                <button class="btn" onclick="alert('Round starting soon!')">BET NEXT ROUND</button>
+            </div>
+        </div>
+
+        <div id="color-box" class="game-page">
+            <button class="back-btn" onclick="goHome()">← Back</button>
+            <div style="clear:both" class="auth-box">
+                <h3 id="resText">Pick Color</h3>
+                <button class="btn" style="background:red" onclick="alert('Red Bet Placed!')">RED</button>
+                <button class="btn" style="background:green; margin-top:10px;" onclick="alert('Green Bet Placed!')">GREEN</button>
             </div>
         </div>
     </div>
 
     <script>
-        let mode = 'login';
-
-        // --- AUTH FUNCTIONS ---
-        function toggleAuth(type) {
-            mode = type;
-            document.getElementById('login-tab').className = type === 'login' ? 'tab active' : 'tab';
-            document.getElementById('signup-tab').className = type === 'signup' ? 'tab active' : 'tab';
-            document.getElementById('auth-btn').innerText = type === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
-            document.getElementById('confirm-pass').style.display = type === 'signup' ? 'block' : 'none';
-        }
-
-        function handleAuth() {
-            const p = document.getElementById('phone').value.trim();
-            const pw = document.getElementById('pass').value.trim();
-            const cpw = document.getElementById('confirm-pass').value.trim();
-
-            if(!p || !pw) {
-                alert("Mobile aur Password dono bhariye!");
-                return;
-            }
-
-            if(mode === 'signup') {
-                if(pw !== cpw) {
-                    alert("Password match nahi ho raha!");
-                    return;
-                }
-                // Save to localStorage
-                localStorage.setItem('user_' + p, pw);
-                alert("Account Ban Gaya! Ab Login karein.");
-                toggleAuth('login');
-                document.getElementById('pass').value = "";
-                document.getElementById('confirm-pass').value = "";
-            } else {
-                // Login Check
-                const savedPass = localStorage.getItem('user_' + p);
-                if(savedPass && savedPass === pw) {
-                    // Success
-                    sessionStorage.setItem('isLoggedIn', 'true');
-                    showApp();
-                } else {
-                    alert("Incorrect Mobile Number or Password! Pehle Sign Up kiya kya?");
-                }
-            }
-        }
-
-        function showApp() {
-            document.getElementById('auth-screen').style.display = 'none';
-            document.getElementById('main-app').style.display = 'block';
-        }
-
-        function logout() {
-            sessionStorage.removeItem('isLoggedIn');
-            location.reload();
-        }
-
-        // Keep logged in after refresh
-        window.onload = () => {
-            if(sessionStorage.getItem('isLoggedIn') === 'true') {
-                showApp();
-            }
+        // --- FIREBASE CONFIG (ASHISH'S PROJECT) ---
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
+            authDomain: "pandya-bet.firebaseapp.com",
+            projectId: "pandya-bet",
+            storageBucket: "pandya-bet.firebasestorage.app",
+            messagingSenderId: "145616340494",
+            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f",
+            measurementId: "G-K83HRTRJDM"
         };
 
-        function openGame(id) {
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById(id).style.display = 'block';
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let authMode = 'login';
+
+        function setAuth(type) {
+            authMode = type;
+            document.getElementById('l-tab').className = type === 'login' ? 'tab active' : 'tab';
+            document.getElementById('s-tab').className = type === 'signup' ? 'tab active' : 'tab';
+            document.getElementById('c-pass').style.display = type === 'signup' ? 'block' : 'none';
+            document.getElementById('auth-btn').innerText = type === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
         }
-        function goHome() {
-            document.querySelectorAll('.game-page').forEach(p => p.style.display = 'none');
-            document.getElementById('lobby').style.display = 'grid';
-        }
-    </script>
-</body>
-</html>
+
+        async function runAuth() {
+            const p = document.getElementById('phone').value;
+            const pw = document.getElementById('pass').value;
+            const cpw = document.getElementById('c-pass').value;
+
+            if(!p || !pw) return alert("Pehle sab details bhariye!");
+
+            if(authMode === 'signup') {
+                if(pw !== cpw) return alert("Password match nahi hua!");
+                // Check if user exists
+                const snap = await db.ref('users/' + p).once('value');
+                if(snap.exists()) return alert("Ye Number pehle se register hai!");
+                
+                await db.ref('users/' + p).set({ password: pw, wallet: 1000 });
+                alert("Account Ban Gaya! Ab Login Karein.");
+                setAuth('login');
+            } else {
+                // Login Check from Firebase
+                const snap = await db.ref('users/' + p).
