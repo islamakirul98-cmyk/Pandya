@@ -3,51 +3,41 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Online</title>
-    
+    <title>Pandya Bet - Fast Mode</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
-        :root { --primary: #f39c12; --bg: #0d1117; --card: #1c2128; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; text-align: center; }
-        .auth-container { padding: 40px 20px; max-width: 400px; margin: auto; }
-        .auth-box { background: var(--card); padding: 25px; border-radius: 15px; border: 1px solid #333; }
-        .tabs { display: flex; margin-bottom: 20px; border-bottom: 1px solid #444; }
-        .tab { flex:1; padding: 12px; cursor: pointer; color: #888; font-weight: bold; }
-        .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
-        input { width: 90%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
-        #main-app { display: none; padding: 20px; }
+        body { background: #0d1117; color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .box { background: #1c2128; padding: 25px; border-radius: 15px; border: 1px solid #333; max-width: 380px; margin: auto; box-shadow: 0 10px 20px rgba(0,0,0,0.5); }
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #f39c12; color: #f39c12; border-radius: 8px; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: #f39c12; color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; transition: 0.3s; }
+        .btn:disabled { background: #555; cursor: not-allowed; }
+        #app-screen { display: none; }
+        .loader { display: none; color: #f39c12; margin-top: 10px; font-weight: bold; animation: blink 1s infinite; }
+        @keyframes blink { 50% { opacity: 0.5; } }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-container">
-        <h1 style="color:var(--primary); font-style: italic;">PANDYA BET</h1>
-        <div class="auth-box">
-            <div class="tabs">
-                <div id="l-tab" class="tab active" onclick="setMode('login')">LOGIN</div>
-                <div id="s-tab" class="tab" onclick="setMode('signup')">SIGN UP</div>
-            </div>
+    <div id="auth-screen">
+        <h1 style="color:#f39c12; font-style: italic;">PANDYA BET</h1>
+        <div class="box">
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
-            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button id="auth-btn" class="btn" onclick="goAuth()">LOGIN NOW</button>
+            
+            <button id="loginBtn" class="btn" onclick="doLogin()">LOGIN</button>
+            <button id="signupBtn" class="btn" style="background:#333; color:white;" onclick="doSignup()">SIGN UP</button>
+            
+            <div id="status" class="loader">Connecting to Server...</div>
         </div>
     </div>
 
-    <div id="main-app">
-        <header style="background:#111; padding:15px; border-bottom:2px solid var(--primary); display:flex; justify-content:space-between; align-items:center;">
-            <div style="color:var(--primary); font-weight:bold; font-style:italic;">PANDYA BET</div>
-            <div style="border:1px solid var(--primary); padding:5px 15px; border-radius:20px; font-weight:bold;">₹ <span id="u-bal">0.00</span></div>
-        </header>
-        <div style="margin-top:50px;">
-            <h2 style="color:var(--primary)">ACCOUNT ACTIVE ✅</h2>
-            <div style="background:var(--card); padding:20px; border-radius:10px; border:1px solid #333; margin:20px;">
-                User ID: <span id="u-id"></span>
-            </div>
-            <button class="btn" onclick="userLogout()" style="max-width:200px; background:#333; color:white;">LOGOUT</button>
+    <div id="app-screen">
+        <h1 style="color:#f39c12">DASHBOARD</h1>
+        <div class="box">
+            <p style="font-size: 18px;">Welcome: <span id="display-id" style="color:#f39c12"></span></p>
+            <h2 style="border: 1px solid #f39c12; padding: 10px; border-radius: 10px;">Wallet: ₹<span id="display-bal">0</span></h2>
+            <button class="btn" style="background:#ff5252; color:white;" onclick="logout()">LOGOUT</button>
         </div>
     </div>
 
@@ -62,71 +52,70 @@
             appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
 
-        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
+        firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mode = 'login';
 
-        // --- CHECK LOGIN ON REFRESH ---
-        window.onload = function() {
-            const saved = localStorage.getItem('pandya_session');
-            if(saved) {
-                openDashboard(saved);
-            }
+        // Auto-Login check
+        window.onload = () => {
+            const user = localStorage.getItem('pandya_user');
+            if(user) showDashboard(user);
         };
 
-        function setMode(m) {
-            mode = m;
-            document.getElementById('l-tab').className = m === 'login' ? 'tab active' : 'tab';
-            document.getElementById('s-tab').className = m === 'signup' ? 'tab active' : 'tab';
-            document.getElementById('c-pass').style.display = m === 'signup' ? 'block' : 'none';
-            document.getElementById('auth-btn').innerText = m === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
+        function setUI(loading) {
+            document.getElementById('status').style.display = loading ? 'block' : 'none';
+            document.getElementById('loginBtn').disabled = loading;
+            document.getElementById('signupBtn').disabled = loading;
         }
 
-        function goAuth() {
-            const p = document.getElementById('phone').value.trim();
-            const pw = document.getElementById('pass').value.trim();
-            const cpw = document.getElementById('c-pass').value.trim();
+        async function doSignup() {
+            const p = document.getElementById('phone').value;
+            const pw = document.getElementById('pass').value;
+            if(!p || !pw) return alert("Bhai details dalo!");
 
-            if(!p || !pw) return alert("Pehle details bharo bhai!");
-
-            if(mode === 'signup') {
-                if(pw !== cpw) return alert("Password match nahi hua!");
-                
-                // Direct Database Push
-                db.ref('users/' + p).set({
-                    password: pw,
-                    wallet: 1000.00
-                }).then(() => {
-                    alert("Account Successfully Ban Gaya! Ab Login Karein.");
-                    setMode('login');
-                }).catch(e => alert("Error: " + e.message));
-
-            } else {
-                // Login Check
-                db.ref('users/' + p).once('value').then((snap) => {
-                    if(snap.exists() && snap.val().password === pw) {
-                        localStorage.setItem('pandya_session', p); // Memory mein save
-                        openDashboard(p);
-                    } else {
-                        alert("Galat ID ya Password!");
-                    }
-                });
-            }
-        }
-
-        function openDashboard(p) {
-            db.ref('users/' + p).on('value', (snap) => {
-                if(snap.exists()) {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
-                    document.getElementById('u-id').innerText = p;
-                    document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
-                }
+            setUI(true);
+            db.ref('users/' + p).set({
+                password: pw,
+                wallet: 1000
+            }).then(() => {
+                setUI(false);
+                alert("Signup Successful! Ab Login button dabao.");
+            }).catch(e => {
+                setUI(false);
+                alert("Server Slow hai: " + e.message);
             });
         }
 
-        function userLogout() {
-            localStorage.removeItem('pandya_session');
+        async function doLogin() {
+            const p = document.getElementById('phone').value;
+            const pw = document.getElementById('pass').value;
+            if(!p || !pw) return alert("Details dalo!");
+
+            setUI(true);
+            db.ref('users/' + p).once('value').then((snap) => {
+                setUI(false);
+                if(snap.exists() && snap.val().password === pw) {
+                    localStorage.setItem('pandya_user', p);
+                    showDashboard(p);
+                } else {
+                    alert("ID ya Password galat hai!");
+                }
+            }).catch(() => {
+                setUI(false);
+                alert("Network Slow hai, phir se try karo!");
+            });
+        }
+
+        function showDashboard(p) {
+            db.ref('users/' + p).on('value', (snap) => {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                document.getElementById('display-id').innerText = p;
+                document.getElementById('display-bal').innerText = snap.val().wallet;
+            });
+        }
+
+        function logout() {
+            localStorage.removeItem('pandya_user');
             location.reload();
         }
     </script>
