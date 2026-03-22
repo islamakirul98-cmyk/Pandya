@@ -27,13 +27,13 @@
         <h1 style="color:var(--primary); font-style: italic;">PANDYA BET</h1>
         <div class="auth-box">
             <div class="tabs">
-                <div id="l-tab" class="tab active" onclick="setAuthMode('login')">LOGIN</div>
-                <div id="s-tab" class="tab" onclick="setAuthMode('signup')">SIGN UP</div>
+                <div id="l-tab" class="tab active" onclick="setMode('login')">LOGIN</div>
+                <div id="s-tab" class="tab" onclick="setMode('signup')">SIGN UP</div>
             </div>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button id="auth-btn" class="btn" onclick="processAuth()">LOGIN NOW</button>
+            <button id="auth-btn" class="btn" onclick="goAuth()">LOGIN NOW</button>
         </div>
     </div>
 
@@ -42,9 +42,8 @@
             <div style="color:var(--primary); font-weight:bold; font-style:italic;">PANDYA BET</div>
             <div style="border:1px solid var(--primary); padding:5px 15px; border-radius:20px; font-weight:bold;">₹ <span id="u-bal">0.00</span></div>
         </header>
-        
         <div style="margin-top:50px;">
-            <h2 style="color:var(--primary)">WELCOME BACK!</h2>
+            <h2 style="color:var(--primary)">ACCOUNT ACTIVE ✅</h2>
             <div style="background:var(--card); padding:20px; border-radius:10px; border:1px solid #333; margin:20px;">
                 User ID: <span id="u-id"></span>
             </div>
@@ -53,7 +52,6 @@
     </div>
 
     <script>
-        // --- FIREBASE CONFIG ---
         const firebaseConfig = {
             apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
             authDomain: "pandya-bet.firebaseapp.com",
@@ -64,19 +62,19 @@
             appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
 
-        firebase.initializeApp(firebaseConfig);
+        if (!firebase.apps.length) { firebase.initializeApp(firebaseConfig); }
         const db = firebase.database();
         let mode = 'login';
 
-        // --- AUTO-LOGIN LOGIC ON REFRESH ---
+        // --- CHECK LOGIN ON REFRESH ---
         window.onload = function() {
-            const savedUser = localStorage.getItem('p_active_user');
-            if(savedUser) {
-                showUserDashboard(savedUser);
+            const saved = localStorage.getItem('pandya_session');
+            if(saved) {
+                openDashboard(saved);
             }
         };
 
-        function setAuthMode(m) {
+        function setMode(m) {
             mode = m;
             document.getElementById('l-tab').className = m === 'login' ? 'tab active' : 'tab';
             document.getElementById('s-tab').className = m === 'signup' ? 'tab active' : 'tab';
@@ -84,29 +82,53 @@
             document.getElementById('auth-btn').innerText = m === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
         }
 
-        function processAuth() {
+        function goAuth() {
             const p = document.getElementById('phone').value.trim();
             const pw = document.getElementById('pass').value.trim();
             const cpw = document.getElementById('c-pass').value.trim();
 
-            if(!p || !pw) return alert("Details bharo bhai!");
+            if(!p || !pw) return alert("Pehle details bharo bhai!");
 
             if(mode === 'signup') {
                 if(pw !== cpw) return alert("Password match nahi hua!");
-                db.ref('users/' + p).set({ password: pw, wallet: 1000.00 })
-                .then(() => { alert("Account Ban Gaya! Ab Login Karo."); setAuthMode('login'); });
+                
+                // Direct Database Push
+                db.ref('users/' + p).set({
+                    password: pw,
+                    wallet: 1000.00
+                }).then(() => {
+                    alert("Account Successfully Ban Gaya! Ab Login Karein.");
+                    setMode('login');
+                }).catch(e => alert("Error: " + e.message));
+
             } else {
+                // Login Check
                 db.ref('users/' + p).once('value').then((snap) => {
                     if(snap.exists() && snap.val().password === pw) {
-                        // Success! Save to Local Storage
-                        localStorage.setItem('p_active_user', p);
-                        showUserDashboard(p);
+                        localStorage.setItem('pandya_session', p); // Memory mein save
+                        openDashboard(p);
                     } else {
-                        alert("Wrong ID or Password!");
+                        alert("Galat ID ya Password!");
                     }
                 });
             }
         }
 
-        function showUserDashboard(p) {
-            db.ref('users
+        function openDashboard(p) {
+            db.ref('users/' + p).on('value', (snap) => {
+                if(snap.exists()) {
+                    document.getElementById('auth-screen').style.display = 'none';
+                    document.getElementById('main-app').style.display = 'block';
+                    document.getElementById('u-id').innerText = p;
+                    document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+                }
+            });
+        }
+
+        function userLogout() {
+            localStorage.removeItem('pandya_session');
+            location.reload();
+        }
+    </script>
+</body>
+</html>
