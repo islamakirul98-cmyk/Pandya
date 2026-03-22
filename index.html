@@ -10,24 +10,23 @@
         :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; }
         
-        /* Auth Screen (Full Screen) */
-        #auth-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        /* Anti-Flash Screens */
+        #auth-screen, #app-screen { display: none; }
+
+        #auth-screen { height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
         .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* App Screen (Hidden by default) */
-        #app-screen { display: none; min-height: 100vh; }
+        #app-screen { min-height: 100vh; }
         .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
         
-        /* UI Elements */
         input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; font-size: 16px; }
         .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 14px; }
         
-        /* Game Grid */
+        /* Game UI */
         .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 500px; margin: auto; }
-        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; }
         .game-icon { font-size: 40px; margin-bottom: 10px; display: block; }
         
-        /* Aviator Game UI */
         #aviator-area { background: #000; height: 200px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; margin: 15px 0; }
         #multiplier { font-size: 45px; font-weight: bold; color: var(--gold); padding-top: 60px; }
         #plane { position: absolute; bottom: 20px; left: 10px; font-size: 35px; transition: 0.1s linear; }
@@ -35,11 +34,23 @@
         .game-window { display: none; padding: 20px; animation: fadeIn 0.3s; }
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
+        /* --- CUSTOM NOTIFICATION SYSTEM --- */
+        #custom-alert {
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
+            background: var(--gold); color: black; padding: 15px 30px;
+            border-radius: 10px; font-weight: bold; z-index: 3000;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            transition: 0.5s ease;
+        }
+        #custom-alert.show { top: 20px; }
+
         .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
         .popup { background: var(--card); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
+
+    <div id="custom-alert">Message here!</div>
 
     <div id="auth-screen">
         <h1 style="color: var(--gold); font-style: italic; margin-bottom: 30px;">PANDYA BET</h1>
@@ -60,7 +71,6 @@
                 ₹ <span id="u-bal">0.00</span>
             </div>
         </div>
-
         <div id="lobby">
             <div class="game-grid">
                 <div class="game-item" onclick="openGame('aviator-game')" style="border-bottom: 4px solid var(--red);">
@@ -76,23 +86,20 @@
         <div class="game-window" id="aviator-game">
             <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
             <h2 style="color:var(--red);">AVIATOR</h2>
-            <div id="aviator-area">
-                <div id="multiplier">1.00x</div>
-                <div id="plane">✈️</div>
-            </div>
+            <div id="aviator-area"><div id="multiplier">1.00x</div><div id="plane">✈️</div></div>
             <input type="number" id="avi-amt" placeholder="Bet Amount">
             <button id="start-avi" class="btn" style="background:var(--red); color:white;" onclick="startAviator()">Bet & Start</button>
             <button id="cashout-avi" class="btn" style="background:var(--green); color:white; display:none;" onclick="cashOutAviator()">Cash Out</button>
         </div>
-        
+
         <div class="game-window" id="color-game">
             <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
             <h2 style="color:var(--gold);">WIN GO</h2>
             <div style="background:#000; padding:20px; border-radius:15px; border:1px solid #444; margin-top: 50px;">
                 <p>Timer: <span id="timer" style="color:var(--gold); font-weight:bold; font-size:24px;">15</span>s</p>
                 <div style="display:flex; gap:10px;">
-                    <button class="btn" style="background:var(--green); color:white;">Green</button>
-                    <button class="btn" style="background:var(--red); color:white;">Red</button>
+                    <button class="btn" style="background:var(--green); color:white;" onclick="showNotify('Coming Soon!')">Green</button>
+                    <button class="btn" style="background:var(--red); color:white;" onclick="showNotify('Coming Soon!')">Red</button>
                 </div>
             </div>
         </div>
@@ -100,7 +107,6 @@
 
     <div id="bonus-overlay" class="overlay"><div class="popup">
         <h2 style="color:var(--gold);">CONGRATS!</h2>
-        <p>You received a Welcome Bonus</p>
         <h1 id="bonus-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
         <button class="btn" onclick="claimBonus()">Claim Now</button>
     </div></div>
@@ -117,12 +123,34 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mode = 'login', loggedInUser = "", currentMulti = 1.0, aviInterval, isFlying = false;
+        let mode = 'login', loggedInUser = "", isFlying = false, currentMulti = 1.0, aviInterval;
 
-        window.onload = () => {
+        // --- CUSTOM NOTIFICATION FUNCTION ---
+        function showNotify(msg) {
+            const alertBox = document.getElementById('custom-alert');
+            alertBox.innerText = msg;
+            alertBox.classList.add('show');
+            setTimeout(() => { alertBox.classList.remove('show'); }, 3000);
+        }
+
+        const checkSession = () => {
             const u = localStorage.getItem('p_user');
-            if(u) loadApp(u);
+            if(u) {
+                loggedInUser = u;
+                db.ref('users/'+u).on('value', s => {
+                    if(s.exists()) {
+                        document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
+                        document.getElementById('app-screen').style.display = 'block';
+                        document.getElementById('auth-screen').style.display = 'none';
+                    } else { userLogout(); }
+                });
+            } else {
+                document.getElementById('auth-screen').style.display = 'flex';
+                document.getElementById('app-screen').style.display = 'none';
+            }
         };
+
+        window.onload = checkSession;
 
         function toggleAuth() {
             mode = (mode === 'login') ? 'signup' : 'login';
@@ -134,7 +162,7 @@
 
         function handleAuth() {
             const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return alert("Please fill all details!");
+            if(!p || !pw) return showNotify("Please fill all details!");
             if(mode === 'signup') {
                 const b = Math.floor(Math.random()*25)+8;
                 document.getElementById('bonus-amt').innerText = "₹"+b;
@@ -142,23 +170,20 @@
                 loggedInUser = p;
             } else {
                 db.ref('users/'+p).once('value').then(s => {
-                    if(s.exists() && s.val().password === pw) { localStorage.setItem('p_user', p); loadApp(p); }
-                    else alert("Invalid credentials!");
+                    if(s.exists() && s.val().password === pw) {
+                        localStorage.setItem('p_user', p);
+                        showNotify("Login Successful!");
+                        checkSession();
+                    } else showNotify("Invalid ID/Password!");
                 });
             }
         }
 
         function claimBonus() {
             const p = loggedInUser, pw = document.getElementById('pass').value, b = parseInt(document.getElementById('bonus-amt').innerText.replace('₹',''));
-            db.ref('users/'+p).set({password:pw, wallet:b}).then(()=> { localStorage.setItem('p_user',p); location.reload(); });
-        }
-
-        function loadApp(p) {
-            loggedInUser = p;
-            db.ref('users/'+p).on('value', s => {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
+            db.ref('users/'+p).set({password:pw, wallet:b}).then(()=> {
+                localStorage.setItem('p_user',p);
+                location.reload();
             });
         }
 
@@ -169,7 +194,7 @@
         // --- AVIATOR LOGIC ---
         function startAviator() {
             const amt = parseFloat(document.getElementById('avi-amt').value), bal = parseFloat(document.getElementById('u-bal').innerText);
-            if(!amt || amt < 10 || amt > bal) return alert("Insufficient Balance!");
+            if(!amt || amt < 10 || amt > bal) return showNotify("Check Balance!");
             db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
             isFlying = true; currentMulti = 1.0;
             document.getElementById('start-avi').style.display = 'none';
@@ -195,8 +220,8 @@
             const amt = parseFloat(document.getElementById('avi-amt').value), win = amt * currentMulti;
             const bal = parseFloat(document.getElementById('u-bal').innerText);
             db.ref('users/'+loggedInUser+'/wallet').set(bal + win).then(() => {
-                alert("You Won ₹" + win.toFixed(2));
-                location.reload();
+                showNotify("Won ₹" + win.toFixed(2));
+                setTimeout(() => { location.reload(); }, 1500);
             });
         }
     </script>
