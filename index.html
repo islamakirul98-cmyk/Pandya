@@ -3,157 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Premium</title>
+    <title>Pandya Bet - Official OTP System</title>
     
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-    
+
     <style>
-        :root {
-            --gold: #f39c12;
-            --dark-bg: #0b0e14;
-            --card-bg: rgba(23, 27, 34, 0.95);
-        }
-
-        body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            /* Premium Dark Gradient - No external Image needed */
-            background: radial-gradient(circle at center, #1a2a3a 0%, #0b0e14 100%);
-            color: white;
-            height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            overflow: hidden;
-        }
-
-        /* Stadium Light Effect */
-        body::before {
-            content: '';
-            position: absolute;
-            top: 0; width: 100%; height: 100%;
-            background: linear-gradient(180deg, rgba(243,156,18,0.05) 0%, rgba(0,0,0,0) 50%);
-            pointer-events: none;
-        }
-
-        .auth-card {
-            background: var(--card-bg);
-            width: 90%;
-            max-width: 380px;
-            padding: 30px;
-            border-radius: 20px;
-            border: 1px solid rgba(243, 156, 18, 0.3);
-            box-shadow: 0 20px 50px rgba(0,0,0,0.8);
-            text-align: center;
-            backdrop-filter: blur(10px);
-        }
-
-        .logo {
-            font-size: 38px;
-            font-weight: 900;
-            color: var(--gold);
-            text-transform: uppercase;
-            font-style: italic;
-            letter-spacing: 2px;
-            margin-bottom: 25px;
-            text-shadow: 0 0 15px rgba(243, 156, 18, 0.4);
-        }
-
-        .tabs {
-            display: flex;
-            background: rgba(0,0,0,0.3);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            padding: 5px;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 10px;
-            cursor: pointer;
-            border-radius: 8px;
-            font-weight: bold;
-            color: #888;
-            transition: 0.3s;
-        }
-
-        .tab.active {
-            background: var(--gold);
-            color: black;
-        }
-
-        input {
-            width: 100%;
-            box-sizing: border-box;
-            padding: 14px;
-            margin: 10px 0;
-            background: #000;
-            border: 1px solid #333;
-            color: var(--gold);
-            border-radius: 10px;
-            font-size: 16px;
-            outline: none;
-        }
-
-        input:focus {
-            border-color: var(--gold);
-        }
-
-        .main-btn {
-            width: 100%;
-            padding: 15px;
-            background: var(--gold);
-            color: black;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            box-shadow: 0 5px 15px rgba(243, 156, 18, 0.3);
-        }
-
-        /* Dashboard Look */
-        #app-screen { display: none; }
-        .wallet-box {
-            background: linear-gradient(135deg, #1c2128 0%, #000 100%);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid var(--gold);
-            margin: 20px 0;
-        }
+        :root { --gold: #f39c12; --bg: #0b0e14; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: #1c2128; padding: 25px; border-radius: 15px; border: 1px solid var(--gold); max-width: 380px; margin: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 8px; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; }
+        #otp-section, #app-screen { display: none; }
+        #recaptcha-container { margin: 10px auto; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="auth-card">
-        <div class="logo">PANDYA BET</div>
+    <div id="auth-screen" class="card">
+        <h1 style="color:var(--gold); font-style: italic;">PANDYA BET</h1>
         
-        <div class="tabs">
-            <div id="l-tab" class="tab active" onclick="setTab('login')">LOGIN</div>
-            <div id="s-tab" class="tab" onclick="setTab('signup')">SIGN UP</div>
+        <div id="number-section">
+            <input type="number" id="phone" placeholder="+91 Mobile Number">
+            <input type="password" id="pass" placeholder="Create Password">
+            <div id="recaptcha-container"></div>
+            <button class="btn" onclick="sendOTP()">SEND OTP</button>
         </div>
 
-        <input type="number" id="phone" placeholder="Mobile Number">
-        <input type="password" id="pass" placeholder="Password">
-        <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-
-        <button class="main-btn" onclick="handleAuth()" id="btnText">LOGIN NOW</button>
+        <div id="otp-section">
+            <p>Enter 6-Digit OTP sent to your phone</p>
+            <input type="number" id="otp" placeholder="Enter OTP">
+            <button class="btn" onclick="verifyOTP()">VERIFY & SIGNUP</button>
+        </div>
     </div>
 
-    <div id="app-screen" class="auth-card">
-        <div class="logo">PANDYA BET</div>
-        <h3>DASHBOARD</h3>
-        <p style="color:#888;">ID: <span id="u-id" style="color:white;"></span></p>
-        
-        <div class="wallet-box">
-            <span style="font-size:14px; color:#aaa;">Balance</span><br>
-            <span style="font-size:32px; font-weight:bold; color:var(--gold);">₹ <span id="u-bal">0.00</span></span>
-        </div>
-
-        <button class="main-btn" style="background:#333; color:white;" onclick="logout()">LOGOUT</button>
+    <div id="app-screen" class="card">
+        <h1 style="color:var(--gold)">WELCOME LOBBY</h1>
+        <p>User: <span id="u-id"></span></p>
+        <h2 style="border: 1px solid var(--gold); padding: 10px; border-radius: 10px;">Wallet: ₹1000.00</h2>
+        <button class="btn" onclick="location.reload()" style="background:#333; color:white;">LOGOUT</button>
     </div>
 
     <script>
@@ -168,53 +57,61 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const db = firebase.database();
-        let mode = 'login';
 
-        window.onload = () => {
-            const user = localStorage.getItem('p_user');
-            if(user) loadDashboard(user);
-        };
+        // Captcha Setup
+        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
+            'size': 'normal',
+            'callback': (response) => { console.log("Captcha Solved"); }
+        });
 
-        function setTab(m) {
-            mode = m;
-            document.getElementById('l-tab').className = m==='login' ? 'tab active' : 'tab';
-            document.getElementById('s-tab').className = m==='signup' ? 'tab active' : 'tab';
-            document.getElementById('c-pass').style.display = m==='signup' ? 'block' : 'none';
-            document.getElementById('btnText').innerText = m==='login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
+        let confirmationResult;
+
+        function sendOTP() {
+            const p = document.getElementById('phone').value;
+            if(!p || p.length < 10) return alert("Sahi number dalo (+91 ke saath)");
+
+            // Number format thik karein (e.g. +919999999999)
+            const phoneNumber = p.startsWith('+') ? p : '+91' + p;
+            const appVerifier = window.recaptchaVerifier;
+
+            auth.signInWithPhoneNumber(phoneNumber, appVerifier)
+                .then((result) => {
+                    confirmationResult = result;
+                    document.getElementById('number-section').style.display = 'none';
+                    document.getElementById('otp-section').style.display = 'block';
+                    alert("OTP Bhej Diya Gaya Hai!");
+                }).catch((error) => {
+                    alert("Galti: " + error.message);
+                    location.reload(); 
+                });
         }
 
-        function handleAuth() {
+        function verifyOTP() {
+            const code = document.getElementById('otp').value;
             const p = document.getElementById('phone').value;
             const pw = document.getElementById('pass').value;
-            const cpw = document.getElementById('c-pass').value;
 
-            if(!p || !pw) return alert("Details bharo bhai!");
-
-            if(mode === 'signup') {
-                if(pw !== cpw) return alert("Password match nahi hua!");
-                db.ref('users/' + p).set({ password: pw, wallet: 1000 })
-                .then(() => { alert("Signup Ho Gaya! Ab Login Karo."); setTab('login'); });
-            } else {
-                db.ref('users/' + p).once('value').then(snap => {
-                    if(snap.exists() && snap.val().password === pw) {
-                        localStorage.setItem('p_user', p);
-                        loadDashboard(p);
-                    } else { alert("Wrong ID or Password!"); }
+            confirmationResult.confirm(code).then((result) => {
+                // OTP Sahi hai! Ab Database mein save karo
+                db.ref('users/' + p).set({
+                    password: pw,
+                    wallet: 1000
+                }).then(() => {
+                    alert("Verification Successful!");
+                    showDashboard(p);
                 });
-            }
-        }
-
-        function loadDashboard(p) {
-            db.ref('users/' + p).on('value', snap => {
-                document.getElementById('auth-screen').style.display = 'none';
-                document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('u-id').innerText = p;
-                document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+            }).catch((error) => {
+                alert("Galat OTP!");
             });
         }
 
-        function logout() { localStorage.removeItem('p_user'); location.reload(); }
+        function showDashboard(p) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('u-id').innerText = p;
+        }
     </script>
 </body>
 </html>
