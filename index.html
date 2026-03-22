@@ -3,18 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Premium</title>
+    <title>Pandya Bet - Bonus System</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --gold: #f39c12; --bg: #0b0e14; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; margin: 0; }
         .card { background: #1c2128; padding: 30px; border-radius: 20px; border: 1px solid var(--gold); max-width: 380px; margin: 50px auto; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
         .logo { font-size: 35px; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 20px; }
         input { width: 90%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; font-size: 16px; outline: none; }
         .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 18px; }
         .tab-btn { background: none; border: none; color: #888; font-weight: bold; cursor: pointer; padding: 10px 20px; }
         .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        
+        /* Bonus Popup Style */
+        #bonus-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; }
+        .popup-box { background: #1c2128; padding: 40px; border-radius: 20px; border: 2px solid var(--gold); text-align: center; }
+        
         #app-screen { display: none; }
     </style>
 </head>
@@ -26,12 +31,19 @@
             <button class="tab-btn active" id="l-tab" onclick="setMode('login')">LOGIN</button>
             <button class="tab-btn" id="s-tab" onclick="setMode('signup')">SIGN UP</button>
         </div>
-
         <input type="number" id="phone" placeholder="Mobile Number">
         <input type="password" id="pass" placeholder="Password">
         <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-
         <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN NOW</button>
+    </div>
+
+    <div id="bonus-popup">
+        <div class="popup-box">
+            <h2 style="color:var(--gold);">🎉 CONGRATULATIONS!</h2>
+            <p>You won a Random Welcome Bonus</p>
+            <h1 id="random-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
+            <button class="btn" onclick="claimBonus()">CLAIM NOW</button>
+        </div>
     </div>
 
     <div id="app-screen" class="card">
@@ -58,6 +70,8 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
         let mode = 'login';
+        let currentBonus = 0;
+        let tempUser = "";
 
         function setMode(m) {
             mode = m;
@@ -72,32 +86,46 @@
             const pw = document.getElementById('pass').value;
             const cpw = document.getElementById('c-pass').value;
 
-            if(!p || !pw) return alert("Pehle details bharo!");
+            if(!p || !pw) return alert("Details bharo!");
 
             if(mode === 'signup') {
                 if(pw !== cpw) return alert("Password match nahi hua!");
-                
-                // Pehle check karo ki number already registered toh nahi hai
                 db.ref('users/' + p).once('value').then(snap => {
-                    if(snap.exists()) {
-                        alert("Bhai ye number pehle se hai! Login karo.");
-                    } else {
-                        db.ref('users/' + p).set({ password: pw, wallet: 1000.00 })
-                        .then(() => { alert("Account Ban Gaya! Ab Login Karo."); setMode('login'); });
-                    }
+                    if(snap.exists()) return alert("Number already registered!");
+                    
+                    // Random Bonus generate (8 se 32 ke beech)
+                    currentBonus = Math.floor(Math.random() * (32 - 8 + 1)) + 8;
+                    tempUser = p;
+                    
+                    // Show Popup
+                    document.getElementById('random-amt').innerText = "₹" + currentBonus;
+                    document.getElementById('bonus-popup').style.display = 'flex';
                 });
             } else {
                 db.ref('users/' + p).once('value').then(snap => {
                     if(snap.exists() && snap.val().password === pw) {
-                        document.getElementById('auth-screen').style.display = 'none';
-                        document.getElementById('app-screen').style.display = 'block';
-                        document.getElementById('u-id').innerText = p;
-                        document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
-                    } else {
-                        alert("Galat Details!");
-                    }
+                        showDashboard(p, snap.val().wallet);
+                    } else { alert("Wrong ID/Password!"); }
                 });
             }
+        }
+
+        function claimBonus() {
+            const pw = document.getElementById('pass').value;
+            db.ref('users/' + tempUser).set({
+                password: pw,
+                wallet: currentBonus
+            }).then(() => {
+                document.getElementById('bonus-popup').style.display = 'none';
+                showDashboard(tempUser, currentBonus);
+            });
+        }
+
+        function showDashboard(id, bal) {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('app-screen').style.display = 'block';
+            document.getElementById('u-id').innerText = id;
+            document.getElementById('u-bal').innerText = parseFloat(bal).toFixed(2);
         }
     </script>
 </body>
