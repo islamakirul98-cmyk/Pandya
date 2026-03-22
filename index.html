@@ -3,82 +3,121 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Game Edition</title>
+    <title>Pandya Bet - Official Games</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 10px; }
-        .card { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid var(--gold); max-width: 400px; margin: 20px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        .logo { font-size: 30px; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 15px; }
-        input { width: 85%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 8px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; text-transform: uppercase; }
+        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --green: #2ecc71; --red: #e74c3c; --violet: #9b59b6; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 0; }
+        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 10; }
+        .logo { font-size: 22px; font-weight: bold; color: var(--gold); font-style: italic; }
+        .wallet-badge { background: #000; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); font-weight: bold; color: var(--gold); }
         
-        /* Game UI */
-        .game-card { background: #000; padding: 15px; border-radius: 12px; margin-top: 15px; border: 1px solid #444; }
-        .team-box { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
-        .odds { color: var(--gold); font-weight: bold; font-size: 18px; }
+        .container { padding: 15px; max-width: 500px; margin: auto; }
         
-        /* Popups */
-        #bonus-popup, #bet-popup { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.95); z-index: 100; align-items: center; justify-content: center; }
-        .popup-box { background: var(--card); padding: 30px; border-radius: 20px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
+        /* Game Icons/Cards */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
+        .game-item:active { transform: scale(0.95); }
+        .game-icon { font-size: 40px; margin-bottom: 10px; display: block; }
+        .game-name { font-weight: bold; font-size: 14px; color: #ddd; }
+
+        /* Game Screens */
+        .game-window { display: none; margin-top: 20px; animation: slideUp 0.3s ease-out; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        #app-screen { display: none; }
+        .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-bottom: 10px; cursor: pointer; float: left; }
+        
+        /* Auth Styles */
+        #auth-screen { padding: 40px 20px; }
+        .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); }
+        input { width: 90%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
+        
+        /* Common Popups */
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; display: none; }
+        .popup { background: var(--card); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); width: 85%; max-width: 320px; }
     </style>
 </head>
 <body>
 
-    <div id="auth-screen" class="card">
-        <div class="logo">PANDYA BET</div>
-        <div id="auth-inputs">
+    <div id="auth-screen">
+        <div class="logo" style="font-size: 40px; margin-bottom: 30px;">PANDYA BET</div>
+        <div class="auth-box">
+            <h2 id="auth-title" style="margin-top:0;">LOGIN</h2>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN</button>
-            <p id="toggle-text" style="color:#888; margin-top:15px; font-size:13px;" onclick="toggleMode()">Naya Account? Signup Karein</p>
-        </div>
-    </div>
-
-    <div id="bonus-popup">
-        <div class="popup-box">
-            <h2 style="color:var(--gold);">🎉 MUBARAK HO!</h2>
-            <p>Aapko mila hai Welcome Bonus</p>
-            <h1 id="random-amt" style="font-size: 45px; margin: 15px 0;">₹0</h1>
-            <button class="btn" onclick="claimBonus()">CLAIM TO WALLET</button>
+            <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN NOW</button>
+            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; font-size:13px; cursor:pointer;">Naya Account? Signup Karein</p>
         </div>
     </div>
 
     <div id="app-screen">
-        <div class="card" style="margin-top:0;">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <span id="u-id" style="font-size:12px; color:#888;">ID: ---</span>
-                <span style="background:var(--gold); color:black; padding:5px 12px; border-radius:20px; font-weight:bold;">₹ <span id="u-bal">0.00</span></span>
-            </div>
-            
-            <h3 style="color:var(--gold); margin-top:20px; text-align:left;">LIVE MATCHES</h3>
-            
-            <div class="game-card">
-                <div class="team-box">
-                    <span>🇮🇳 INDIA</span>
-                    <span class="odds" onclick="openBet('INDIA', 1.85)">1.85</span>
-                </div>
-                <div class="team-box">
-                    <span>🇦🇺 AUSTRALIA</span>
-                    <span class="odds" onclick="openBet('AUSTRALIA', 1.90)">1.90</span>
-                </div>
-            </div>
+        <div class="header">
+            <div class="logo">PANDYA BET</div>
+            <div class="wallet-badge">₹ <span id="u-bal">0.00</span></div>
+        </div>
 
-            <button class="btn" style="background:#333; color:white; margin-top:30px;" onclick="location.reload()">LOGOUT</button>
+        <div class="container" id="lobby">
+            <h3 style="text-align: left; color: #888;">POPULAR GAMES</h3>
+            <div class="game-grid">
+                <div class="game-item" onclick="openGame('color-game')" style="border-bottom: 4px solid var(--violet);">
+                    <span class="game-icon">🎨</span>
+                    <span class="game-name">COLOR TRADING</span>
+                </div>
+                <div class="game-item" onclick="openGame('aviator-game')" style="border-bottom: 4px solid var(--red);">
+                    <span class="game-icon">🚀</span>
+                    <span class="game-name">AVIATOR</span>
+                </div>
+                <div class="game-item" onclick="openGame('cricket-game')" style="border-bottom: 4px solid var(--gold);">
+                    <span class="game-icon">🏏</span>
+                    <span class="game-name">CRICKET</span>
+                </div>
+                <div class="game-item" onclick="alert('Coming Soon!')" style="border-bottom: 4px solid #555;">
+                    <span class="game-icon">🎰</span>
+                    <span class="game-name">SLOTS</span>
+                </div>
+            </div>
+            <button class="btn" style="background:#222; color:#888; margin-top:40px;" onclick="userLogout()">LOGOUT</button>
+        </div>
+
+        <div class="container game-window" id="color-game">
+            <button class="back-btn" onclick="backToLobby()">← BACK</button>
+            <h2 style="color:var(--gold);">COLOR TRADING</h2>
+            <div style="background:#000; padding:20px; border-radius:15px; border:1px solid #444;">
+                <p>Next Result in: <span id="timer" style="color:var(--gold); font-weight:bold;">15</span>s</p>
+                <div style="display:flex; gap:10px; margin-top:15px;">
+                    <button class="btn" style="background:var(--green); color:white;" onclick="alert('Betting Green...')">GREEN</button>
+                    <button class="btn" style="background:var(--red); color:white;" onclick="alert('Betting Red...')">RED</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="container game-window" id="aviator-game">
+            <button class="back-btn" onclick="backToLobby()">← BACK</button>
+            <h2 style="color:var(--red);">AVIATOR</h2>
+            <div style="background:#000; height:150px; border-radius:15px; display:flex; align-items:center; justify-content:center; border:1px solid #333;">
+                <h1 style="font-size:40px; color:var(--gold);">1.00x</h1>
+            </div>
+            <button class="btn" style="background:var(--red); color:white; margin-top:15px;">BET & FLY</button>
+        </div>
+
+        <div class="container game-window" id="cricket-game">
+            <button class="back-btn" onclick="backToLobby()">← BACK</button>
+            <h2 style="color:var(--gold);">CRICKET BETTING</h2>
+            <div style="background:var(--card); padding:15px; border-radius:10px; text-align:left; border-left:5px solid var(--gold);">
+                <b>IND vs AUS</b> <span style="color:var(--red); float:right;">LIVE 🔴</span>
+                <p style="margin-bottom:0; font-size:12px; color:#888;">Match Odds: 1.85 | 1.90</p>
+            </div>
         </div>
     </div>
 
-    <div id="bet-popup">
-        <div class="popup-box">
-            <h3 id="bet-team" style="color:var(--gold);">TEAM</h3>
-            <input type="number" id="bet-amount" placeholder="Enter Amount">
-            <p style="font-size:12px;">Winning: ₹ <span id="win-amt">0</span></p>
-            <button class="btn" onclick="placeBet()">PLACE BET</button>
-            <button class="btn" style="background:#444; color:white;" onclick="document.getElementById('bet-popup').style.display='none'">CANCEL</button>
+    <div id="bonus-overlay" class="overlay">
+        <div class="popup">
+            <h2 style="color:var(--gold);">🎉 WELCOME BONUS</h2>
+            <h1 id="bonus-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
+            <button class="btn" onclick="claimBonus()">CLAIM NOW</button>
         </div>
     </div>
 
@@ -95,49 +134,45 @@
 
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        
-        let mode = 'login';
-        let currentBonus = 0;
-        let loggedInUser = "";
+        let mode = 'login', loggedInUser = "", tempBonus = 0;
 
-        function toggleMode() {
+        window.onload = () => {
+            const saved = localStorage.getItem('p_user');
+            if(saved) loadApp(saved);
+            else document.getElementById('auth-screen').style.display = 'block';
+        };
+
+        function toggleAuth() {
             mode = (mode === 'login') ? 'signup' : 'login';
+            document.getElementById('auth-title').innerText = (mode === 'signup') ? 'SIGN UP' : 'LOGIN';
             document.getElementById('c-pass').style.display = (mode === 'signup') ? 'block' : 'none';
-            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'CREATE ACCOUNT' : 'LOGIN';
-            document.getElementById('toggle-text').innerText = (mode === 'signup') ? 'Account hai? Login Karein' : 'Naya Account? Signup Karein';
+            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'CREATE ACCOUNT' : 'LOGIN NOW';
         }
 
         function handleAuth() {
-            const p = document.getElementById('phone').value;
-            const pw = document.getElementById('pass').value;
-            const cpw = document.getElementById('c-pass').value;
-
+            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
             if(!p || !pw) return alert("Details bharo!");
-
+            
             if(mode === 'signup') {
-                if(pw !== cpw) return alert("Password match nahi hua!");
-                db.ref('users/'+p).once('value').then(snap => {
-                    if(snap.exists()) return alert("Number pehle se hai!");
-                    currentBonus = Math.floor(Math.random() * (32 - 8 + 1)) + 8;
-                    loggedInUser = p;
-                    document.getElementById('random-amt').innerText = "₹" + currentBonus;
-                    document.getElementById('bonus-popup').style.display = 'flex';
-                });
+                tempBonus = Math.floor(Math.random() * (32 - 8 + 1)) + 8;
+                document.getElementById('bonus-amt').innerText = "₹" + tempBonus;
+                document.getElementById('bonus-overlay').style.display = 'flex';
+                loggedInUser = p;
             } else {
                 db.ref('users/'+p).once('value').then(snap => {
                     if(snap.exists() && snap.val().password === pw) {
+                        localStorage.setItem('p_user', p);
                         loadApp(p);
-                    } else { alert("Galat Details!"); }
+                    } else alert("Galat details!");
                 });
             }
         }
 
         function claimBonus() {
-            const pw = document.getElementById('pass').value;
-            db.ref('users/'+loggedInUser).set({ password: pw, wallet: currentBonus })
-            .then(() => {
-                document.getElementById('bonus-popup').style.display = 'none';
-                loadApp(loggedInUser);
+            const p = loggedInUser, pw = document.getElementById('pass').value;
+            db.ref('users/'+p).set({ password: pw, wallet: tempBonus }).then(() => {
+                localStorage.setItem('p_user', p);
+                location.reload();
             });
         }
 
@@ -146,32 +181,28 @@
             db.ref('users/'+p).on('value', snap => {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('u-id').innerText = "ID: " + p;
                 document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
             });
         }
 
-        // --- GAME LOGIC ---
-        function openBet(team, odds) {
-            document.getElementById('bet-team').innerText = team + " ("+odds+")";
-            document.getElementById('bet-popup').style.display = 'flex';
-            document.getElementById('bet-amount').oninput = function() {
-                document.getElementById('win-amt').innerText = (this.value * odds).toFixed(2);
-            };
+        function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
+
+        // --- NAVIGATION ---
+        function openGame(gameId) {
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById(gameId).style.display = 'block';
         }
 
-        function placeBet() {
-            const amt = parseFloat(document.getElementById('bet-amount').value);
-            const bal = parseFloat(document.getElementById('u-bal').innerText);
-            
-            if(amt > bal) return alert("Paisa kam hai bhai!");
-            if(!amt || amt < 10) return alert("Min bet ₹10 hai!");
-
-            db.ref('users/'+loggedInUser+'/wallet').set(bal - amt).then(() => {
-                alert("Bet Lag Gayi! Good Luck.");
-                document.getElementById('bet-popup').style.display = 'none';
-            });
+        function backToLobby() {
+            document.querySelectorAll('.game-window').forEach(el => el.style.display = 'none');
+            document.getElementById('lobby').style.display = 'block';
         }
+
+        // Dummy Timer for Color Game
+        setInterval(() => {
+            let t = parseInt(document.getElementById('timer').innerText);
+            document.getElementById('timer').innerText = (t <= 0) ? 15 : t - 1;
+        }, 1000);
     </script>
 </body>
 </html>
