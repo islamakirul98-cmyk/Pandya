@@ -1,125 +1,109 @@
 <!DOCTYPE html>
-<html lang="hi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Games</title>
+    <title>Pandya Bet - Official</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
-        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --green: #2ecc71; --red: #e74c3c; --violet: #9b59b6; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; margin: 0; padding: 0; }
-        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 10; }
-        .logo { font-size: 22px; font-weight: bold; color: var(--gold); font-style: italic; }
-        .wallet-badge { background: #000; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); font-weight: bold; color: var(--gold); }
+        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; }
         
-        .container { padding: 15px; max-width: 500px; margin: auto; }
+        /* Auth Screen (Full Screen) */
+        #auth-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 350px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         
-        /* Game Icons/Cards */
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        /* App Screen (Hidden by default) */
+        #app-screen { display: none; min-height: 100vh; }
+        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
+        
+        /* UI Elements */
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; font-size: 16px; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; font-size: 14px; }
+        
+        /* Game Grid */
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 500px; margin: auto; }
         .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; transition: 0.3s; }
-        .game-item:active { transform: scale(0.95); }
         .game-icon { font-size: 40px; margin-bottom: 10px; display: block; }
-        .game-name { font-weight: bold; font-size: 14px; color: #ddd; }
-
-        /* Game Screens */
-        .game-window { display: none; margin-top: 20px; animation: slideUp 0.3s ease-out; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         
-        .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-bottom: 10px; cursor: pointer; float: left; }
+        /* Aviator Game UI */
+        #aviator-area { background: #000; height: 200px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; margin: 15px 0; }
+        #multiplier { font-size: 45px; font-weight: bold; color: var(--gold); padding-top: 60px; }
+        #plane { position: absolute; bottom: 20px; left: 10px; font-size: 35px; transition: 0.1s linear; }
         
-        /* Auth Styles */
-        #auth-screen { padding: 40px 20px; }
-        .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); }
-        input { width: 90%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; text-transform: uppercase; }
+        .game-window { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         
-        /* Common Popups */
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 100; align-items: center; justify-content: center; display: none; }
-        .popup { background: var(--card); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); width: 85%; max-width: 320px; }
+        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
+        .popup { background: var(--card); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen">
-        <div class="logo" style="font-size: 40px; margin-bottom: 30px;">PANDYA BET</div>
+        <h1 style="color: var(--gold); font-style: italic; margin-bottom: 30px;">PANDYA BET</h1>
         <div class="auth-box">
-            <h2 id="auth-title" style="margin-top:0;">LOGIN</h2>
+            <h2 id="auth-title" style="margin-top: 0;">LOGIN</h2>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN NOW</button>
-            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; font-size:13px; cursor:pointer;">Naya Account? Signup Karein</p>
+            <button class="btn" onclick="handleAuth()" id="main-btn">Login Now</button>
+            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; font-size:13px; cursor:pointer;" id="toggle-text">Don't have an account? Sign Up</p>
         </div>
     </div>
 
     <div id="app-screen">
         <div class="header">
-            <div class="logo">PANDYA BET</div>
-            <div class="wallet-badge">₹ <span id="u-bal">0.00</span></div>
+            <div style="font-weight: bold; color: var(--gold);">PANDYA BET</div>
+            <div style="background: #000; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold;">
+                ₹ <span id="u-bal">0.00</span>
+            </div>
         </div>
 
-        <div class="container" id="lobby">
-            <h3 style="text-align: left; color: #888;">POPULAR GAMES</h3>
+        <div id="lobby">
             <div class="game-grid">
-                <div class="game-item" onclick="openGame('color-game')" style="border-bottom: 4px solid var(--violet);">
-                    <span class="game-icon">🎨</span>
-                    <span class="game-name">COLOR TRADING</span>
-                </div>
                 <div class="game-item" onclick="openGame('aviator-game')" style="border-bottom: 4px solid var(--red);">
-                    <span class="game-icon">🚀</span>
-                    <span class="game-name">AVIATOR</span>
+                    <span class="game-icon">🚀</span><span style="font-weight:bold;">AVIATOR</span>
                 </div>
-                <div class="game-item" onclick="openGame('cricket-game')" style="border-bottom: 4px solid var(--gold);">
-                    <span class="game-icon">🏏</span>
-                    <span class="game-name">CRICKET</span>
-                </div>
-                <div class="game-item" onclick="alert('Coming Soon!')" style="border-bottom: 4px solid #555;">
-                    <span class="game-icon">🎰</span>
-                    <span class="game-name">SLOTS</span>
+                <div class="game-item" onclick="openGame('color-game')" style="border-bottom: 4px solid var(--gold);">
+                    <span class="game-icon">🎨</span><span style="font-weight:bold;">WIN GO</span>
                 </div>
             </div>
-            <button class="btn" style="background:#222; color:#888; margin-top:40px;" onclick="userLogout()">LOGOUT</button>
+            <button class="btn" style="background:#222; color:#888; width: 150px; margin-top: 50px;" onclick="userLogout()">Logout</button>
         </div>
 
-        <div class="container game-window" id="color-game">
-            <button class="back-btn" onclick="backToLobby()">← BACK</button>
-            <h2 style="color:var(--gold);">COLOR TRADING</h2>
-            <div style="background:#000; padding:20px; border-radius:15px; border:1px solid #444;">
-                <p>Next Result in: <span id="timer" style="color:var(--gold); font-weight:bold;">15</span>s</p>
-                <div style="display:flex; gap:10px; margin-top:15px;">
-                    <button class="btn" style="background:var(--green); color:white;" onclick="alert('Betting Green...')">GREEN</button>
-                    <button class="btn" style="background:var(--red); color:white;" onclick="alert('Betting Red...')">RED</button>
-                </div>
-            </div>
-        </div>
-
-        <div class="container game-window" id="aviator-game">
-            <button class="back-btn" onclick="backToLobby()">← BACK</button>
+        <div class="game-window" id="aviator-game">
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
             <h2 style="color:var(--red);">AVIATOR</h2>
-            <div style="background:#000; height:150px; border-radius:15px; display:flex; align-items:center; justify-content:center; border:1px solid #333;">
-                <h1 style="font-size:40px; color:var(--gold);">1.00x</h1>
+            <div id="aviator-area">
+                <div id="multiplier">1.00x</div>
+                <div id="plane">✈️</div>
             </div>
-            <button class="btn" style="background:var(--red); color:white; margin-top:15px;">BET & FLY</button>
+            <input type="number" id="avi-amt" placeholder="Bet Amount">
+            <button id="start-avi" class="btn" style="background:var(--red); color:white;" onclick="startAviator()">Bet & Start</button>
+            <button id="cashout-avi" class="btn" style="background:var(--green); color:white; display:none;" onclick="cashOutAviator()">Cash Out</button>
         </div>
-
-        <div class="container game-window" id="cricket-game">
-            <button class="back-btn" onclick="backToLobby()">← BACK</button>
-            <h2 style="color:var(--gold);">CRICKET BETTING</h2>
-            <div style="background:var(--card); padding:15px; border-radius:10px; text-align:left; border-left:5px solid var(--gold);">
-                <b>IND vs AUS</b> <span style="color:var(--red); float:right;">LIVE 🔴</span>
-                <p style="margin-bottom:0; font-size:12px; color:#888;">Match Odds: 1.85 | 1.90</p>
+        
+        <div class="game-window" id="color-game">
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
+            <h2 style="color:var(--gold);">WIN GO</h2>
+            <div style="background:#000; padding:20px; border-radius:15px; border:1px solid #444; margin-top: 50px;">
+                <p>Timer: <span id="timer" style="color:var(--gold); font-weight:bold; font-size:24px;">15</span>s</p>
+                <div style="display:flex; gap:10px;">
+                    <button class="btn" style="background:var(--green); color:white;">Green</button>
+                    <button class="btn" style="background:var(--red); color:white;">Red</button>
+                </div>
             </div>
         </div>
     </div>
 
-    <div id="bonus-overlay" class="overlay">
-        <div class="popup">
-            <h2 style="color:var(--gold);">🎉 WELCOME BONUS</h2>
-            <h1 id="bonus-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
-            <button class="btn" onclick="claimBonus()">CLAIM NOW</button>
-        </div>
-    </div>
+    <div id="bonus-overlay" class="overlay"><div class="popup">
+        <h2 style="color:var(--gold);">CONGRATS!</h2>
+        <p>You received a Welcome Bonus</p>
+        <h1 id="bonus-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
+        <button class="btn" onclick="claimBonus()">Claim Now</button>
+    </div></div>
 
     <script>
         const firebaseConfig = {
@@ -131,78 +115,90 @@
             messagingSenderId: "145616340494",
             appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
-
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mode = 'login', loggedInUser = "", tempBonus = 0;
+        let mode = 'login', loggedInUser = "", currentMulti = 1.0, aviInterval, isFlying = false;
 
         window.onload = () => {
-            const saved = localStorage.getItem('p_user');
-            if(saved) loadApp(saved);
-            else document.getElementById('auth-screen').style.display = 'block';
+            const u = localStorage.getItem('p_user');
+            if(u) loadApp(u);
         };
 
         function toggleAuth() {
             mode = (mode === 'login') ? 'signup' : 'login';
-            document.getElementById('auth-title').innerText = (mode === 'signup') ? 'SIGN UP' : 'LOGIN';
+            document.getElementById('auth-title').innerText = mode.toUpperCase();
             document.getElementById('c-pass').style.display = (mode === 'signup') ? 'block' : 'none';
-            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'CREATE ACCOUNT' : 'LOGIN NOW';
+            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'Create Account' : 'Login Now';
+            document.getElementById('toggle-text').innerText = (mode === 'signup') ? 'Already have an account? Login' : "Don't have an account? Sign Up";
         }
 
         function handleAuth() {
             const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return alert("Details bharo!");
-            
+            if(!p || !pw) return alert("Please fill all details!");
             if(mode === 'signup') {
-                tempBonus = Math.floor(Math.random() * (32 - 8 + 1)) + 8;
-                document.getElementById('bonus-amt').innerText = "₹" + tempBonus;
+                const b = Math.floor(Math.random()*25)+8;
+                document.getElementById('bonus-amt').innerText = "₹"+b;
                 document.getElementById('bonus-overlay').style.display = 'flex';
                 loggedInUser = p;
             } else {
-                db.ref('users/'+p).once('value').then(snap => {
-                    if(snap.exists() && snap.val().password === pw) {
-                        localStorage.setItem('p_user', p);
-                        loadApp(p);
-                    } else alert("Galat details!");
+                db.ref('users/'+p).once('value').then(s => {
+                    if(s.exists() && s.val().password === pw) { localStorage.setItem('p_user', p); loadApp(p); }
+                    else alert("Invalid credentials!");
                 });
             }
         }
 
         function claimBonus() {
-            const p = loggedInUser, pw = document.getElementById('pass').value;
-            db.ref('users/'+p).set({ password: pw, wallet: tempBonus }).then(() => {
-                localStorage.setItem('p_user', p);
-                location.reload();
-            });
+            const p = loggedInUser, pw = document.getElementById('pass').value, b = parseInt(document.getElementById('bonus-amt').innerText.replace('₹',''));
+            db.ref('users/'+p).set({password:pw, wallet:b}).then(()=> { localStorage.setItem('p_user',p); location.reload(); });
         }
 
         function loadApp(p) {
             loggedInUser = p;
-            db.ref('users/'+p).on('value', snap => {
+            db.ref('users/'+p).on('value', s => {
                 document.getElementById('auth-screen').style.display = 'none';
                 document.getElementById('app-screen').style.display = 'block';
-                document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+                document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
             });
         }
 
         function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
+        function openGame(id) { document.getElementById('lobby').style.display = 'none'; document.getElementById(id).style.display = 'block'; }
+        function backToLobby() { document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById('lobby').style.display = 'block'; }
 
-        // --- NAVIGATION ---
-        function openGame(gameId) {
-            document.getElementById('lobby').style.display = 'none';
-            document.getElementById(gameId).style.display = 'block';
+        // --- AVIATOR LOGIC ---
+        function startAviator() {
+            const amt = parseFloat(document.getElementById('avi-amt').value), bal = parseFloat(document.getElementById('u-bal').innerText);
+            if(!amt || amt < 10 || amt > bal) return alert("Insufficient Balance!");
+            db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
+            isFlying = true; currentMulti = 1.0;
+            document.getElementById('start-avi').style.display = 'none';
+            document.getElementById('cashout-avi').style.display = 'block';
+            const crashAt = (Math.random() * 5 + 1.2).toFixed(2);
+            const plane = document.getElementById('plane');
+            aviInterval = setInterval(() => {
+                currentMulti += 0.05;
+                document.getElementById('multiplier').innerText = currentMulti.toFixed(2) + "x";
+                plane.style.left = (currentMulti * 20) + "px";
+                plane.style.bottom = (currentMulti * 15) + "px";
+                if(currentMulti >= crashAt) {
+                    clearInterval(aviInterval); isFlying = false;
+                    document.getElementById('multiplier').innerText = "FLY AWAY!";
+                    setTimeout(() => { location.reload(); }, 2000);
+                }
+            }, 100);
         }
 
-        function backToLobby() {
-            document.querySelectorAll('.game-window').forEach(el => el.style.display = 'none');
-            document.getElementById('lobby').style.display = 'block';
+        function cashOutAviator() {
+            if(!isFlying) return;
+            clearInterval(aviInterval); isFlying = false;
+            const amt = parseFloat(document.getElementById('avi-amt').value), win = amt * currentMulti;
+            const bal = parseFloat(document.getElementById('u-bal').innerText);
+            db.ref('users/'+loggedInUser+'/wallet').set(bal + win).then(() => {
+                alert("You Won ₹" + win.toFixed(2));
+                location.reload();
+            });
         }
-
-        // Dummy Timer for Color Game
-        setInterval(() => {
-            let t = parseInt(document.getElementById('timer').innerText);
-            document.getElementById('timer').innerText = (t <= 0) ? 15 : t - 1;
-        }, 1000);
     </script>
 </body>
 </html>
