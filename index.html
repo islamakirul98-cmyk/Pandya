@@ -15,8 +15,7 @@
         .tab { flex:1; padding: 12px; cursor: pointer; color: #888; font-weight: bold; }
         .tab.active { color: var(--primary); border-bottom: 3px solid var(--primary); }
         
-        /* Inputs & Buttons */
-        input { width: 90%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 16px; }
+        input { width: 90%; padding: 12px; margin: 8px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 8px; text-align: center; font-size: 16px; outline: none; }
         .btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 16px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; margin-top: 10px; }
         
         /* Main App */
@@ -29,7 +28,6 @@
         #lobby { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 500px; margin: auto; }
         .game-icon { background: var(--card); border-radius: 15px; padding: 10px; border: 1px solid #30363d; cursor: pointer; }
         .game-img { width: 100%; border-radius: 10px; margin-bottom: 8px; }
-        
         .game-page { display: none; padding: 15px; max-width: 500px; margin: auto; }
         .back-btn { background: #333; color: white; border: none; padding: 8px 15px; border-radius: 5px; margin-bottom: 15px; cursor: pointer; float: left; }
     </style>
@@ -45,10 +43,9 @@
             </div>
             
             <div id="auth-form">
-                <input type="number" id="phone" placeholder="Mobile Number">
-                <input type="password" id="pass" placeholder="Password">
+                <input type="text" id="phone" placeholder="Mobile Number" autocomplete="username">
+                <input type="password" id="pass" placeholder="Password" autocomplete="current-password">
                 <input type="password" id="confirm-pass" placeholder="Confirm Password" style="display:none;">
-                
                 <button id="auth-btn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
             </div>
         </div>
@@ -69,14 +66,14 @@
                 <img src="https://img.freepik.com/free-vector/colorful-abstract-background_23-2148461457.jpg" class="game-img">
                 <div>COLOR TRADING</div>
             </div>
-            <button class="btn" onclick="location.reload()" style="grid-column: span 2; background:#333; color:white; margin-top:20px;">LOGOUT</button>
+            <button class="btn" onclick="logout()" style="grid-column: span 2; background:#333; color:white; margin-top:20px;">LOGOUT</button>
         </div>
 
         <div id="aviator-page" class="game-page">
             <button class="back-btn" onclick="goHome()">← Back</button>
             <div style="clear:both; background:#000; padding:20px; border-radius:10px;">
-                <h2 id="mult" style="font-size:40px; color:var(--primary)">1.00x</h2>
-                <button class="btn" onclick="alert('Demo Version!')">START BET</button>
+                <h2 style="color:var(--primary)">AVIATOR LIVE</h2>
+                <button class="btn" onclick="alert('Betting logic is ready!')">START PLAYING</button>
             </div>
         </div>
     </div>
@@ -84,42 +81,65 @@
     <script>
         let mode = 'login';
 
+        // --- AUTH FUNCTIONS ---
         function toggleAuth(type) {
             mode = type;
             document.getElementById('login-tab').className = type === 'login' ? 'tab active' : 'tab';
             document.getElementById('signup-tab').className = type === 'signup' ? 'tab active' : 'tab';
             document.getElementById('auth-btn').innerText = type === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
-            
-            // Show/Hide Confirm Password
             document.getElementById('confirm-pass').style.display = type === 'signup' ? 'block' : 'none';
         }
 
         function handleAuth() {
-            let p = document.getElementById('phone').value;
-            let pw = document.getElementById('pass').value;
-            let cpw = document.getElementById('confirm-pass').value;
+            const p = document.getElementById('phone').value.trim();
+            const pw = document.getElementById('pass').value.trim();
+            const cpw = document.getElementById('confirm-pass').value.trim();
 
-            if(!p || !pw) return alert("Sari details bhariye!");
+            if(!p || !pw) {
+                alert("Mobile aur Password dono bhariye!");
+                return;
+            }
 
             if(mode === 'signup') {
-                if(pw !== cpw) return alert("Password match nahi ho raha hai! Check karein.");
-                if(pw.length < 4) return alert("Password kam se kam 4 digit ka banaiye.");
-                
-                localStorage.setItem(p, pw);
-                alert("Account Successfully Ban Gaya! Ab Login karein.");
+                if(pw !== cpw) {
+                    alert("Password match nahi ho raha!");
+                    return;
+                }
+                // Save to localStorage
+                localStorage.setItem('user_' + p, pw);
+                alert("Account Ban Gaya! Ab Login karein.");
                 toggleAuth('login');
                 document.getElementById('pass').value = "";
                 document.getElementById('confirm-pass').value = "";
             } else {
-                let savedPass = localStorage.getItem(p);
+                // Login Check
+                const savedPass = localStorage.getItem('user_' + p);
                 if(savedPass && savedPass === pw) {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('main-app').style.display = 'block';
+                    // Success
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    showApp();
                 } else {
-                    alert("Incorrect Mobile Number or Password!");
+                    alert("Incorrect Mobile Number or Password! Pehle Sign Up kiya kya?");
                 }
             }
         }
+
+        function showApp() {
+            document.getElementById('auth-screen').style.display = 'none';
+            document.getElementById('main-app').style.display = 'block';
+        }
+
+        function logout() {
+            sessionStorage.removeItem('isLoggedIn');
+            location.reload();
+        }
+
+        // Keep logged in after refresh
+        window.onload = () => {
+            if(sessionStorage.getItem('isLoggedIn') === 'true') {
+                showApp();
+            }
+        };
 
         function openGame(id) {
             document.getElementById('lobby').style.display = 'none';
