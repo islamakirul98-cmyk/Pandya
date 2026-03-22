@@ -9,210 +9,125 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     
     <style>
-        :root {
-            --primary: #f39c12; /* Gold color */
-            --bg-overlay: rgba(13, 17, 23, 0.85); /* Dark transparent overlay */
-            --card-bg: rgba(28, 33, 40, 0.95); /* Dark card background */
-            --text-main: white;
-        }
-
         body {
-            background: #0d1117; /* Fallback color */
-            color: var(--text-main);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            text-align: center;
+            background: #0d1117 url('https://img.etimg.com/thumb/msid-100224422,width-1200,height-900,resizemode-4,imgsize-86314/online-cricket-betting-apps-legal-cricket-betting-scams.jpg') no-repeat center center fixed;
+            background-size: cover;
+            color: white;
+            font-family: sans-serif;
             margin: 0;
             padding: 20px;
-            /* Yahan hum cricket betting ka wallpaper laga rahe hain */
-            background-image: url('https://img.etimg.com/thumb/msid-100224422,width-1200,height-900,resizemode-4,imgsize-86314/online-cricket-betting-apps-legal-cricket-betting-scams.jpg');
-            background-size: cover;
-            background-position: center;
-            background-attachment: fixed;
-            position: relative;
         }
-
-        /* Overlay to darken the background for better text contrast */
         body::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            background-color: var(--bg-overlay);
-            z-index: -1;
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.8); z-index: -1;
         }
-
-        .container {
-            position: relative;
-            z-index: 1;
-            padding-top: 50px;
-        }
-
-        .box {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid #444;
-            max-width: 380px;
-            margin: auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px); /* Adds a glassy blur to the box background */
-        }
-
-        .logo {
-            color: var(--primary);
-            font-size: 36px;
-            font-weight: bold;
-            font-style: italic;
-            text-transform: uppercase;
-            letter-spacing: 3px;
-            margin-bottom: 20px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-        }
-
-        .tabs {
-            display: flex;
-            margin-bottom: 25px;
-            border-bottom: 1px solid #555;
-        }
-
-        .tab {
-            flex: 1;
-            padding: 12px;
-            cursor: pointer;
-            color: #aaa;
-            font-weight: bold;
-            text-transform: uppercase;
-            font-size: 14px;
-            transition: 0.3s;
-        }
-
-        .tab.active {
-            color: var(--primary);
-            border-bottom: 3px solid var(--primary);
-        }
-
-        input {
-            width: 90%;
-            padding: 14px;
-            margin: 12px 0;
-            background: rgba(0, 0, 0, 0.7);
-            border: 1px solid #555;
-            color: var(--primary);
-            border-radius: 8px;
-            font-size: 16px;
-            outline: none;
-            transition: 0.3s;
-        }
-
-        input:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 5px rgba(243, 156, 18, 0.5);
-        }
-
-        .btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--primary);
-            color: black;
-            border: none;
-            border-radius: 10px;
-            font-size: 18px;
-            font-weight: bold;
-            cursor: pointer;
-            margin-top: 15px;
-            text-transform: uppercase;
-            transition: 0.3s;
-            letter-spacing: 1px;
-        }
-
-        .btn:hover {
-            background: #e67e22; /* Darker orange on hover */
-        }
-
-        #app-screen {
-            display: none;
-            text-align: center;
-        }
-
-        .dashboard-box {
-            background: var(--card-bg);
-            padding: 30px;
-            border-radius: 15px;
-            border: 1px solid var(--primary);
-            max-width: 450px;
-            margin: 50px auto auto;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
-        }
-
-        .wallet-display {
-            font-size: 32px;
-            font-weight: bold;
-            color: var(--primary);
-            background: rgba(0, 0, 0, 0.5);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 20px 0;
-            border: 1px dashed var(--primary);
-        }
-
-        .logout-btn {
-            background: #333;
-            color: white;
-            padding: 12px 20px;
-            border-radius: 8px;
-            border: 1px solid #555;
-            cursor: pointer;
-            font-weight: bold;
-            margin-top: 20px;
-            transition: 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #ff5252;
-            border-color: #ff5252;
-        }
-
-        .status-msg {
-            display: none;
-            color: var(--primary);
-            margin-top: 15px;
-            font-weight: bold;
-            font-size: 14px;
-        }
+        .logo { color: #f39c12; font-size: 35px; font-weight: bold; font-style: italic; margin-bottom: 20px; text-shadow: 2px 2px 10px rgba(0,0,0,1); }
+        .box { background: rgba(28, 33, 40, 0.9); padding: 25px; border-radius: 15px; border: 1px solid #f39c12; max-width: 360px; margin: auto; backdrop-filter: blur(10px); }
+        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: #f39c12; border-radius: 8px; font-size: 16px; outline: none; }
+        input:focus { border-color: #f39c12; }
+        .btn { width: 100%; padding: 15px; background: #f39c12; color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; font-size: 16px; text-transform: uppercase; }
+        .btn-signup { background: #333; color: white; border: 1px solid #555; margin-top: 15px; }
+        #app-screen { display: none; }
+        .wallet-card { background: #000; padding: 20px; border-radius: 10px; border: 1px dashed #f39c12; margin-top: 20px; }
     </style>
 </head>
 <body>
 
-    <div class="container">
-        <div id="auth-screen">
-            <div class="logo">PANDYA BET</div>
-            <div class="box">
-                <div class="tabs">
-                    <div id="l-tab" class="tab active" onclick="switchTab('login')">LOGIN</div>
-                    <div id="s-tab" class="tab" onclick="switchTab('signup')">SIGN UP</div>
-                </div>
-                
-                <input type="number" id="phone" placeholder="Mobile Number">
-                <input type="password" id="pass" placeholder="Password">
-                <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-                
-                <button id="authBtn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
-                <div id="status" class="status-msg">Wait... Connecting to Server...</div>
-            </div>
-        </div>
-
-        <div id="app-screen">
-            <div class="logo">PANDYA BET</div>
-            <div class="dashboard-box">
-                <h2>WELCOME TO LOBBY</h2>
-                <p style="font-size: 18px; color: #ccc;">User ID: <span id="display-id" style="color:var(--primary); font-weight:bold;"></span></p>
-                
-                <div class="wallet-display">
-                    Wallet: ₹<span id="display-bal">0.00</span>
-                </div>
-                
-                <p style="color: #888;">Live matches and Aviator coming soon...</p>
-                
-                <button class="logout-btn" onclick="logout()">LOGOUT</button>
-            </div>
+    <div id="auth-screen">
+        <div class="logo">PANDYA BET</div>
+        <div class="box">
+            <h2 id="title" style="color:#f39c12; margin-top:0;">LOGIN</h2>
+            
+            <input type="number" id="phone" placeholder="Mobile Number">
+            <input type="password" id="pass" placeholder="Password">
+            
+            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
+            
+            <button id="mainBtn" class="btn" onclick="handleAuth()">LOGIN NOW</button>
+            
+            <p id="toggleText" style="margin-top:20px; font-size:14px; color:#aaa;">Account nahi hai?</p>
+            <button id="toggleBtn" class="btn btn-signup" onclick="toggleMode()">GO TO SIGNUP</button>
         </div>
     </div>
+
+    <div id="app-screen">
+        <div class="logo">PANDYA BET</div>
+        <div class="box" style="max-width: 450px;">
+            <h2 style="margin-top:0;">WELCOME TO LOBBY</h2>
+            <p>ID: <span id="u-id" style="color:#f39c12; font-weight:bold;"></span></p>
+            
+            <div class="wallet-card">
+                <span style="font-size:14px; color:#888;">Available Balance</span><br>
+                <span style="font-size:30px; font-weight:bold; color:#f39c12;">₹ <span id="u-bal">0.00</span></span>
+            </div>
+            
+            <p style="color:#666; font-size:12px; margin-top:20px;">Cricket Matches & Aviator loading...</p>
+            <button class="btn" style="background:#444; color:white; width:150px;" onclick="logout()">LOGOUT</button>
+        </div>
+    </div>
+
+    <script>
+        const firebaseConfig = {
+            apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
+            authDomain: "pandya-bet.firebaseapp.com",
+            databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com",
+            projectId: "pandya-bet",
+            storageBucket: "pandya-bet.firebasestorage.app",
+            messagingSenderId: "145616340494",
+            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.database();
+        let isLogin = true;
+
+        window.onload = () => {
+            const user = localStorage.getItem('p_user');
+            if(user) showDashboard(user);
+        };
+
+        function toggleMode() {
+            isLogin = !isLogin;
+            document.getElementById('title').innerText = isLogin ? 'LOGIN' : 'SIGN UP';
+            document.getElementById('mainBtn').innerText = isLogin ? 'LOGIN NOW' : 'CREATE ACCOUNT';
+            document.getElementById('toggleBtn').innerText = isLogin ? 'GO TO SIGNUP' : 'GO TO LOGIN';
+            document.getElementById('toggleText').innerText = isLogin ? 'Account nahi hai?' : 'Pehle se account hai?';
+            document.getElementById('c-pass').style.display = isLogin ? 'none' : 'block';
+        }
+
+        function handleAuth() {
+            const p = document.getElementById('phone').value.trim();
+            const pw = document.getElementById('pass').value.trim();
+            const cpw = document.getElementById('c-pass').value.trim();
+
+            if(!p || !pw) return alert("Pehle details bharo!");
+
+            if(!isLogin) {
+                // SIGNUP
+                if(pw !== cpw) return alert("Password match nahi hua!");
+                db.ref('users/' + p).set({ password: pw, wallet: 1000 })
+                .then(() => { alert("Signup Successful! Ab Login kijiye."); toggleMode(); });
+            } else {
+                // LOGIN
+                db.ref('users/' + p).once('value').then((snap) => {
+                    if(snap.exists() && snap.val().password === pw) {
+                        localStorage.setItem('p_user', p);
+                        showDashboard(p);
+                    } else { alert("ID ya Password galat hai!"); }
+                });
+            }
+        }
+
+        function showDashboard(p) {
+            db.ref('users/' + p).on('value', (snap) => {
+                document.getElementById('auth-screen').style.display = 'none';
+                document.getElementById('app-screen').style.display = 'block';
+                document.getElementById('u-id').innerText = p;
+                document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+            });
+        }
+
+        function logout() { localStorage.removeItem('p_user'); location.reload(); }
+    </script>
+</body>
+</html>
