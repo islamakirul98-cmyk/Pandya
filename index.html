@@ -3,115 +3,111 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official</title>
+    <title>Pandya Bet - Official App</title>
     <style>
         :root {
-            --primary: #f39c12; /* Gold */
-            --bg-dark: #0d1117; /* Navy Dark */
-            --card-bg: #161b22;
+            --primary: #f39c12; 
+            --bg-dark: #0d1117; 
+            --card-bg: #1c2128;
             --success: #00c853;
-            --danger: #ff1744;
         }
 
         body { 
-            background-color: var(--bg-dark); 
-            color: white; 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            margin: 0; padding: 0;
-            text-align: center;
+            background-color: var(--bg-dark); color: white; 
+            font-family: sans-serif; margin: 0; text-align: center;
         }
 
+        /* App Header */
         header {
-            background: #111;
-            padding: 15px;
-            border-bottom: 2px solid var(--primary);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
+            background: #111; padding: 15px; border-bottom: 2px solid var(--primary);
+            display: flex; justify-content: space-between; align-items: center;
             position: sticky; top: 0; z-index: 100;
         }
+        .logo { font-size: 22px; font-weight: bold; color: var(--primary); font-style: italic; }
+        .bal-box { background: #222; padding: 5px 12px; border-radius: 15px; border: 1px solid var(--primary); font-weight: bold; }
 
-        .logo { font-size: 24px; font-weight: bold; color: var(--primary); font-style: italic; }
-        .balance-badge {
-            background: #21262d; padding: 5px 15px; border-radius: 20px;
-            border: 1px solid var(--primary); font-weight: bold;
+        /* Lobby / Home Screen */
+        #lobby { padding: 20px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; max-width: 500px; margin: auto; }
+        
+        .game-icon {
+            background: var(--card-bg); border-radius: 15px; padding: 10px;
+            border: 1px solid #30363d; cursor: pointer; transition: 0.3s;
+        }
+        .game-icon:active { transform: scale(0.95); }
+        .game-img { width: 100%; border-radius: 10px; margin-bottom: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .game-name { font-weight: bold; font-size: 14px; color: #fff; }
+
+        /* Game Screens */
+        .game-page { display: none; padding: 15px; max-width: 500px; margin: auto; }
+        .back-btn { 
+            background: #333; color: white; border: none; padding: 8px 15px; 
+            border-radius: 5px; margin-bottom: 15px; cursor: pointer; float: left;
         }
 
-        .container { padding: 15px; max-width: 500px; margin: auto; }
+        /* Common Elements */
+        .card { background: #161b22; border-radius: 15px; padding: 15px; border: 1px solid #333; margin-top: 10px; }
+        input { width: 80%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 5px; text-align: center; font-size: 18px; }
+        .action-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; background: var(--primary); color: #000; }
 
-        h2 { color: var(--primary); font-size: 18px; text-transform: uppercase; margin-top: 30px; border-left: 4px solid var(--primary); padding-left: 10px; text-align: left; }
+        /* JetX Graphics */
+        #screen { height: 220px; background: #000; border-radius: 10px; position: relative; overflow: hidden; }
+        #multiplier { position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%); font-size: 45px; font-weight: bold; color: var(--primary); }
+        #plane { position: absolute; bottom: 20px; left: 20px; font-size: 40px; }
 
-        .card {
-            background: var(--card-bg);
-            border-radius: 15px;
-            padding: 15px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            margin-bottom: 20px;
-            border: 1px solid #30363d;
-        }
+        /* Color Buttons */
+        .color-grid { display: flex; gap: 10px; margin-top: 15px; }
+        .c-btn { flex:1; padding: 15px; border-radius: 8px; border: none; font-weight: bold; color: white; cursor: pointer; }
 
-        /* --- JETX SECTION --- */
-        #graph-area {
-            height: 250px; background: #000; border-radius: 10px;
-            position: relative; overflow: hidden; border: 1px solid #333;
-        }
-        #multiplier {
-            position: absolute; top: 40%; left: 50%; transform: translate(-50%, -50%);
-            font-size: 50px; font-weight: 900; color: var(--primary); z-index: 10;
-        }
-        #plane { position: absolute; bottom: 20px; left: 20px; font-size: 40px; z-index: 5; }
-
-        /* --- COLOR SECTION --- */
-        .color-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; margin-top: 15px; }
-        .c-btn { padding: 15px; border-radius: 8px; border: none; font-weight: bold; cursor: pointer; color: white; font-size: 14px; }
-        .bg-green { background: var(--success); }
-        .bg-red { background: var(--danger); }
-        .bg-violet { background: #9c27b0; }
-
-        /* General Controls */
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #444; color: var(--primary); border-radius: 5px; text-align: center; font-size: 18px; }
-        .main-btn { width: 100%; padding: 15px; border-radius: 10px; border: none; font-size: 18px; font-weight: bold; cursor: pointer; text-transform: uppercase; }
-        .btn-bet { background: var(--primary); color: #000; }
-        .btn-cashout { background: var(--success); color: white; display: none; }
-
-        footer { margin-top: 50px; padding: 20px; color: #8b949e; font-size: 13px; border-top: 1px solid #30363d; }
+        footer { margin-top: 30px; padding: 20px; color: #666; font-size: 12px; }
     </style>
 </head>
 <body>
 
     <header>
         <div class="logo">PANDYA BET</div>
-        <div class="balance-badge">₹ <span id="wallet">1000.00</span></div>
+        <div class="bal-box">₹ <span id="wallet">1000.00</span></div>
     </header>
 
-    <div class="container">
-        
-        <h2>🚀 JetX Aviator</h2>
+    <div id="lobby">
+        <div class="game-icon" onclick="openGame('aviator-page')">
+            <img src="https://img.freepik.com/premium-vector/jet-plane-flying-sky-logo-design-vector_605910-142.jpg" class="game-img" alt="Aviator">
+            <div class="game-name">AVIATOR 🚀</div>
+        </div>
+        <div class="game-icon" onclick="openGame('color-page')">
+            <img src="https://img.freepik.com/free-vector/colorful-abstract-background_23-2148461457.jpg" class="game-img" alt="Color">
+            <div class="game-name">COLOR TRADING 🎨</div>
+        </div>
+    </div>
+
+    <div id="aviator-page" class="game-page">
+        <button class="back-btn" onclick="goHome()">← Back</button>
+        <div style="clear:both"></div>
         <div class="card">
-            <div id="graph-area">
+            <div id="screen">
                 <div id="multiplier">1.00x</div>
                 <div id="plane">✈️</div>
             </div>
             <input type="number" id="jetAmt" value="50">
-            <button id="jetBtn" class="main-btn btn-bet" onclick="startJet()">PLACE BET</button>
+            <button id="jetBtn" class="action-btn" onclick="startJet()">START BET</button>
         </div>
+    </div>
 
-        <h2>🎨 Color Prediction</h2>
+    <div id="color-page" class="game-page">
+        <button class="back-btn" onclick="goHome()">← Back</button>
+        <div style="clear:both"></div>
         <div class="card">
-            <p style="font-size: 14px; color: #8b949e;">Select Color to Bet ₹20</p>
+            <h3>Naya Round Shuru Hai</h3>
             <div class="color-grid">
-                <button class="c-btn bg-green" onclick="playColor('GREEN')">GREEN</button>
-                <button class="c-btn bg-violet" onclick="playColor('VIOLET')">VIOLET</button>
-                <button class="c-btn bg-red" onclick="playColor('RED')">RED</button>
+                <button class="c-btn" style="background:red" onclick="playColor('RED')">RED</button>
+                <button class="c-btn" style="background:purple" onclick="playColor('VIOLET')">VIOLET</button>
+                <button class="c-btn" style="background:green" onclick="playColor('GREEN')">GREEN</button>
             </div>
-            <div id="colorRes" style="margin-top: 15px; font-weight: bold; color: var(--primary);">Pick a color!</div>
+            <p id="colorRes" style="margin-top:20px; color:var(--primary)">Select color to win!</p>
         </div>
-
     </div>
 
     <footer>
-        <div style="color:var(--primary); font-weight:bold; margin-bottom:5px;">PANDYA BET OFFICIAL</div>
-        © 2026 • 18+ Entertainment Purposes Only
+        © 2026 PANDYA BET OFFICIAL<br>Certified Fair Play Game
     </footer>
 
     <script>
@@ -119,33 +115,33 @@
         let jetRunning = false;
         let jetTimer;
 
-        function updateWallet() {
-            document.getElementById('wallet').innerText = balance.toFixed(2);
+        // --- NAVIGATION ---
+        function openGame(pageId) {
+            document.getElementById('lobby').style.display = 'none';
+            document.getElementById(pageId).style.display = 'block';
+        }
+        function goHome() {
+            document.querySelectorAll('.game-page').forEach(p => p.style.display = 'none');
+            document.getElementById('lobby').style.display = 'grid';
         }
 
         // --- JETX LOGIC ---
         function startJet() {
             let amt = parseFloat(document.getElementById('jetAmt').value);
-            if(amt > balance) return alert("Balance kam hai!");
+            if(amt > balance) return alert("Paisa nahi hai!");
             
-            balance -= amt; updateWallet();
+            balance -= amt; updateW();
             jetRunning = true;
-            let count = 1.00;
-            let x=20, y=20;
+            let count = 1.00; let x=20, y=20;
             let btn = document.getElementById('jetBtn');
-            
-            btn.innerText = "CASH OUT";
-            btn.className = "main-btn btn-cashout";
-            btn.style.display = "block";
+            btn.innerText = "CASH OUT"; btn.style.background = "#00c853";
             
             let limit = (1 + Math.random() * 4).toFixed(2);
-            
             btn.onclick = () => {
                 if(!jetRunning) return;
                 clearInterval(jetTimer);
-                let win = amt * count;
-                balance += win; updateWallet();
-                alert("Win! ₹" + win.toFixed(2));
+                balance += (amt * count); updateW();
+                alert("Win! ₹" + (amt * count).toFixed(2));
                 resetJet();
             };
 
@@ -154,10 +150,8 @@
                 document.getElementById('multiplier').innerText = count.toFixed(2) + "x";
                 x += 1.5; y += 1.1;
                 document.getElementById('plane').style.transform = `translate(${x}px, -${y}px)`;
-                
                 if(count >= limit) {
-                    clearInterval(jetTimer);
-                    jetRunning = false;
+                    clearInterval(jetTimer); jetRunning = false;
                     document.getElementById('multiplier').style.color = "red";
                     setTimeout(() => { alert("CRASHED!"); resetJet(); }, 100);
                 }
@@ -167,30 +161,28 @@
         function resetJet() {
             jetRunning = false;
             let btn = document.getElementById('jetBtn');
-            btn.innerText = "PLACE BET";
-            btn.className = "main-btn btn-bet";
+            btn.innerText = "START BET"; btn.style.background = "#f39c12";
             btn.onclick = startJet;
             document.getElementById('plane').style.transform = `translate(0,0)`;
             document.getElementById('multiplier').style.color = "var(--primary)";
-            document.getElementById('multiplier').innerText = "1.00x";
         }
 
         // --- COLOR LOGIC ---
         function playColor(choice) {
-            if(balance < 20) return alert("Paisa nahi hai!");
+            if(balance < 20) return alert("Balance kam hai!");
             balance -= 20;
             const colors = ['RED', 'GREEN', 'VIOLET'];
             const win = colors[Math.floor(Math.random() * colors.length)];
-            
             if(choice === win) {
-                let winAmt = win === 'VIOLET' ? 80 : 40;
-                balance += winAmt;
+                balance += (win === 'VIOLET' ? 80 : 40);
                 document.getElementById('colorRes').innerText = "Winner! Result: " + win;
             } else {
                 document.getElementById('colorRes').innerText = "Lost! Result: " + win;
             }
-            updateWallet();
+            updateW();
         }
+
+        function updateW() { document.getElementById('wallet').innerText = balance.toFixed(2); }
     </script>
 </body>
 </html>
