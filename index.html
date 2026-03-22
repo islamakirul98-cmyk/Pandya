@@ -3,117 +3,101 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official OTP</title>
-    
+    <title>Pandya Bet - Official Premium</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
-
     <style>
         :root { --gold: #f39c12; --bg: #0b0e14; }
-        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; margin: 0; }
-        .card { background: #1c2128; padding: 25px; border-radius: 15px; border: 1px solid var(--gold); max-width: 380px; margin: 50px auto; box-shadow: 0 10px 30px rgba(0,0,0,0.8); }
-        input { width: 90%; padding: 12px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 8px; font-size: 16px; outline: none; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-        #otp-section, #app-screen { display: none; }
-        #recaptcha-container { margin: 15px auto; display: flex; justify-content: center; }
+        body { background: var(--bg); color: white; font-family: sans-serif; text-align: center; padding: 20px; }
+        .card { background: #1c2128; padding: 30px; border-radius: 20px; border: 1px solid var(--gold); max-width: 380px; margin: 50px auto; box-shadow: 0 15px 40px rgba(0,0,0,0.9); }
+        .logo { font-size: 35px; font-weight: bold; color: var(--gold); font-style: italic; margin-bottom: 20px; }
+        input { width: 90%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; font-size: 16px; outline: none; }
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 15px; font-size: 18px; }
+        .tab-btn { background: none; border: none; color: #888; font-weight: bold; cursor: pointer; padding: 10px 20px; }
+        .tab-btn.active { color: var(--gold); border-bottom: 2px solid var(--gold); }
+        #app-screen { display: none; }
     </style>
 </head>
 <body>
 
     <div id="auth-screen" class="card">
-        <h1 style="color:var(--gold); font-style: italic; letter-spacing: 2px;">PANDYA BET</h1>
-        
-        <div id="number-section">
-            <p style="color:#aaa;">Create New Account</p>
-            <input type="number" id="phone" placeholder="Mobile (e.g. 9876543210)">
-            <input type="password" id="pass" placeholder="Create Password">
-            
-            <div id="recaptcha-container"></div>
-            
-            <button class="btn" onclick="sendOTP()">GET OTP</button>
+        <div class="logo">PANDYA BET</div>
+        <div style="margin-bottom:20px;">
+            <button class="tab-btn active" id="l-tab" onclick="setMode('login')">LOGIN</button>
+            <button class="tab-btn" id="s-tab" onclick="setMode('signup')">SIGN UP</button>
         </div>
 
-        <div id="otp-section">
-            <p style="color:var(--gold);">Verify Your Number</p>
-            <input type="number" id="otp" placeholder="6-Digit OTP">
-            <button class="btn" onclick="verifyOTP()">VERIFY & JOIN</button>
-            <p style="font-size:12px; color:#666; margin-top:10px;" onclick="location.reload()">Back to Start</p>
-        </div>
+        <input type="number" id="phone" placeholder="Mobile Number">
+        <input type="password" id="pass" placeholder="Password">
+        <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
+
+        <button class="btn" onclick="handleAuth()" id="main-btn">LOGIN NOW</button>
     </div>
 
     <div id="app-screen" class="card">
-        <h1 style="color:var(--gold)">LOBBY</h1>
-        <div style="border:1px dashed var(--gold); padding:20px; border-radius:10px;">
-            <p>Welcome, <span id="u-id" style="color:var(--gold)"></span></p>
-            <h2 style="margin:0;">₹ 1000.00</h2>
-            <p style="font-size:12px; color:#888;">Bonus Active ✅</p>
+        <div class="logo">PANDYA BET</div>
+        <h3>DASHBOARD ACTIVE ✅</h3>
+        <div style="background:#000; padding:20px; border-radius:15px; border:1px dashed var(--gold); margin:20px 0;">
+            <p style="color:#888; margin:0;">User ID: <span id="u-id" style="color:white;"></span></p>
+            <h1 style="color:var(--gold); margin:10px 0;">₹ <span id="u-bal">0.00</span></h1>
         </div>
-        <button class="btn" onclick="location.reload()" style="background:#333; color:white; margin-top:20px;">LOGOUT</button>
+        <button class="btn" style="background:#333; color:white;" onclick="location.reload()">LOGOUT</button>
     </div>
 
     <script>
-        // --- AAPKA NAYA CONFIG ---
         const firebaseConfig = {
-            apiKey: "AIzaSyAcB9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
+            apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
             authDomain: "pandya-bet.firebaseapp.com",
             databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com",
             projectId: "pandya-bet",
             storageBucket: "pandya-bet.firebasestorage.app",
             messagingSenderId: "145616340494",
-            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f",
-            measurementId: "G-K83HRTRJDM"
+            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
         };
 
         firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
         const db = firebase.database();
+        let mode = 'login';
 
-        // Captcha visible karne ke liye
-        window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-            'size': 'normal'
-        });
-
-        let confirmResult;
-
-        function sendOTP() {
-            const p = document.getElementById('phone').value;
-            const pw = document.getElementById('pass').value;
-            
-            if(!p || p.length < 10) return alert("Pehle 10-digit number dalo!");
-            if(!pw) return alert("Password bhi banao bhai!");
-
-            const fullNumber = "+91" + p;
-            const appVerifier = window.recaptchaVerifier;
-
-            auth.signInWithPhoneNumber(fullNumber, appVerifier)
-                .then((result) => {
-                    confirmResult = result;
-                    document.getElementById('number-section').style.display = 'none';
-                    document.getElementById('otp-section').style.display = 'block';
-                    alert("OTP Bhej Diya Gaya Hai!");
-                }).catch((error) => {
-                    alert("Error: " + error.message);
-                    location.reload();
-                });
+        function setMode(m) {
+            mode = m;
+            document.getElementById('l-tab').className = m === 'login' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('s-tab').className = m === 'signup' ? 'tab-btn active' : 'tab-btn';
+            document.getElementById('c-pass').style.display = m === 'signup' ? 'block' : 'none';
+            document.getElementById('main-btn').innerText = m === 'login' ? 'LOGIN NOW' : 'CREATE ACCOUNT';
         }
 
-        function verifyOTP() {
-            const code = document.getElementById('otp').value;
+        function handleAuth() {
             const p = document.getElementById('phone').value;
             const pw = document.getElementById('pass').value;
+            const cpw = document.getElementById('c-pass').value;
 
-            confirmResult.confirm(code).then(() => {
-                // Database mein save
-                db.ref('users/' + p).set({
-                    password: pw,
-                    wallet: 1000
-                }).then(() => {
-                    document.getElementById('auth-screen').style.display = 'none';
-                    document.getElementById('app-screen').style.display = 'block';
-                    document.getElementById('u-id').innerText = p;
+            if(!p || !pw) return alert("Pehle details bharo!");
+
+            if(mode === 'signup') {
+                if(pw !== cpw) return alert("Password match nahi hua!");
+                
+                // Pehle check karo ki number already registered toh nahi hai
+                db.ref('users/' + p).once('value').then(snap => {
+                    if(snap.exists()) {
+                        alert("Bhai ye number pehle se hai! Login karo.");
+                    } else {
+                        db.ref('users/' + p).set({ password: pw, wallet: 1000.00 })
+                        .then(() => { alert("Account Ban Gaya! Ab Login Karo."); setMode('login'); });
+                    }
                 });
-            }).catch(() => alert("Galat OTP hai!"));
+            } else {
+                db.ref('users/' + p).once('value').then(snap => {
+                    if(snap.exists() && snap.val().password === pw) {
+                        document.getElementById('auth-screen').style.display = 'none';
+                        document.getElementById('app-screen').style.display = 'block';
+                        document.getElementById('u-id').innerText = p;
+                        document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
+                    } else {
+                        alert("Galat Details!");
+                    }
+                });
+            }
         }
     </script>
 </body>
