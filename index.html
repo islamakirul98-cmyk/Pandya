@@ -8,43 +8,41 @@
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         
-        /* FIX: Shuruat mein dono hide rahenge taaki flash na ho */
+        /* Shuruat mein dono hide rahenge */
         #auth-screen, #app-screen { display: none; }
 
-        /* Header */
+        /* Header Fix */
         .header { background: var(--card); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(243, 156, 18, 0.2); position: sticky; top: 0; z-index: 100; }
         .logo-group { display: flex; align-items: center; gap: 12px; }
-        .menu-icon { font-size: 24px; cursor: pointer; color: var(--gold); padding: 5px; }
-        .logo { font-size: 18px; font-weight: bold; color: var(--gold); letter-spacing: 1px; }
-        .wallet-badge { background: #000; padding: 6px 15px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; cursor: pointer; font-size: 14px; }
+        .menu-icon { font-size: 24px; cursor: pointer; color: var(--gold); }
+        .logo { font-size: 18px; font-weight: bold; color: var(--gold); font-style: italic; }
+        .wallet-badge { background: #000; padding: 6px 15px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; cursor: pointer; }
 
-        /* FIX: Side Menu Line Hatane Ke Liye */
+        /* Side Menu Line Fix */
         .side-menu { 
             position: fixed; top: 0; left: -300px; width: 260px; height: 100%; 
             background: var(--card); z-index: 2000; transition: 0.3s ease; 
-            padding: 20px; box-shadow: none; visibility: hidden;
+            padding: 20px; visibility: hidden;
         }
         .side-menu.active { left: 0; visibility: visible; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
         .menu-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
         .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
 
-        /* Lobby UI */
+        /* Aviator Design */
+        #aviator-area { background: #000; height: 180px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; margin: 15px 0; }
+        #multiplier { font-size: 40px; font-weight: bold; color: var(--gold); padding-top: 50px; text-align: center; }
+        #plane { position: absolute; bottom: 20px; left: 10px; font-size: 30px; transition: 0.1s linear; }
+
+        /* Common */
         .container { padding: 15px; max-width: 500px; margin: auto; }
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
         .game-item { background: var(--card); border-radius: 15px; padding: 25px 10px; border: 1px solid #333; cursor: pointer; text-align: center; }
-        .game-item b { display: block; margin-top: 10px; font-size: 14px; color: #ddd; }
-
-        /* Auth UI */
-        .auth-box { background: var(--card); padding: 35px 25px; border-radius: 20px; border: 1px solid var(--gold); width: 90%; max-width: 350px; margin: auto; }
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
         .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-
-        /* Games Window */
-        .game-window { display: none; padding: 20px; animation: slideIn 0.3s; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
+        
+        .game-window { display: none; padding: 20px; }
         #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 25px; border-radius: 8px; font-weight: bold; z-index: 3000; transition: 0.4s; }
         #custom-alert.show { top: 20px; }
     </style>
@@ -55,15 +53,15 @@
     <div class="overlay-bg" id="menu-overlay" onclick="closeMenu()"></div>
 
     <div class="side-menu" id="side-nav">
-        <h2 style="color: var(--gold); font-style: italic;">PANDYA MENU</h2>
+        <h2 style="color: var(--gold);">PANDYA MENU</h2>
         <div class="menu-item" onclick="openGame('deposit-page'); closeMenu();">💰 Deposit</div>
         <div class="menu-item" onclick="openGame('withdraw-page'); closeMenu();">🏦 Withdraw</div>
         <div class="menu-item" onclick="userLogout()" style="color: var(--red); margin-top: 50px;">🚪 Logout</div>
     </div>
 
     <div id="auth-screen" style="height:100vh; display:flex; align-items:center; justify-content:center;">
-        <div class="auth-box">
-            <h1 style="color: var(--gold); font-style: italic; margin-top: 0;">PANDYA BET</h1>
+        <div style="background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 90%; max-width: 350px;">
+            <h1 style="color: var(--gold); font-style: italic;">PANDYA BET</h1>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <button class="btn" onclick="handleAuth()">Login / Sign Up</button>
@@ -87,30 +85,26 @@
         </div>
 
         <div class="game-window" id="aviator-game">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
-            <h2 style="color:var(--red);">🚀 AVIATOR</h2>
-            <p>Loading Game Engine...</p>
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white; cursor:pointer;">← Back</button>
+            <h2 style="color:var(--red); text-align: center;">🚀 AVIATOR</h2>
+            <div id="aviator-area"><div id="multiplier">1.00x</div><div id="plane">✈️</div></div>
+            <input type="number" id="avi-amt" placeholder="Bet Amount">
+            <button id="start-avi" class="btn" style="background:var(--red); color:white;" onclick="startAviator()">Bet & Start</button>
+            <button id="cashout-avi" class="btn" style="background:var(--green); color:white; display:none;" onclick="cashOutAviator()">Cash Out</button>
         </div>
 
         <div class="game-window" id="color-game">
             <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
-            <h2 style="color:var(--gold);">🎨 WIN GO</h2>
-            <p>Timer: <span id="timer">15</span>s</p>
+            <h2 style="color:var(--gold); text-align: center;">🎨 WIN GO</h2>
+            <p style="text-align: center;">Timer: <span id="timer">15</span>s</p>
         </div>
 
         <div class="game-window" id="deposit-page">
             <button onclick="backToLobby()" style="background:none; border:none; color:white;">← Back</button>
-            <h2>DEPOSIT</h2>
-            <div style="background:white; width:150px; height:150px; margin:20px auto; border-radius:10px; color:black; padding-top:60px;">QR CODE</div>
+            <h2 style="text-align: center;">DEPOSIT</h2>
+            <div style="background:white; width:150px; height:150px; margin:20px auto; border-radius:10px; color:black; text-align:center; padding-top:60px;">QR CODE</div>
             <input type="number" id="dep-amt" placeholder="Amount"><input type="text" id="dep-utr" placeholder="UTR Number">
             <button class="btn" style="background:var(--green); color:black;" onclick="showNotify('Request Sent!')">Submit</button>
-        </div>
-
-        <div class="game-window" id="withdraw-page">
-            <button onclick="backToLobby()" style="background:none; border:none; color:white;">← Back</button>
-            <h2>WITHDRAW</h2>
-            <input type="number" id="wit-amt" placeholder="Amount"><input type="text" id="wit-upi" placeholder="UPI ID">
-            <button class="btn" style="background:var(--red); color:white;" onclick="showNotify('Request Sent!')">Request</button>
         </div>
     </div>
 
@@ -126,44 +120,33 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
+        let loggedUser = "", isFlying = false, multi = 1.0, aviInt;
 
-        function showNotify(msg) {
-            const a = document.getElementById('custom-alert');
-            a.innerText = msg; a.classList.add('show');
-            setTimeout(() => a.classList.remove('show'), 3000);
-        }
-
-        // --- ANTI-FLASH LOGIC (FIXED) ---
-        const checkSession = () => {
+        // CHECK SESSION (NO FLASH)
+        if(localStorage.getItem('p_user')) {
             const u = localStorage.getItem('p_user');
-            if(u) {
-                db.ref('users/'+u).once('value').then(s => {
-                    if(s.exists()){
-                        db.ref('users/'+u).on('value', snap => {
-                            document.getElementById('u-bal').innerText = parseFloat(snap.val().wallet).toFixed(2);
-                        });
-                        document.getElementById('app-screen').style.display = 'block';
-                        document.getElementById('auth-screen').style.display = 'none';
-                    } else {
-                        userLogout();
-                    }
-                });
-            } else {
+            loggedUser = u;
+            db.ref('users/'+u).on('value', s => {
+                if(s.exists()){
+                    document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
+                    document.getElementById('app-screen').style.display = 'block';
+                    document.getElementById('auth-screen').style.display = 'none';
+                }
+            });
+        } else {
+            document.addEventListener("DOMContentLoaded", () => {
                 document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('app-screen').style.display = 'none';
-            }
-        };
-        checkSession(); // Pehle hi call kar diya taaki flash na ho
+            });
+        }
 
         function handleAuth() {
             const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return showNotify("Enter details!");
             db.ref('users/'+p).once('value', s => {
                 if(s.exists()){
                     if(s.val().password === pw) { localStorage.setItem('p_user', p); location.reload(); }
                     else showNotify("Wrong password!");
                 } else {
-                    db.ref('users/'+p).set({password:pw, wallet:20}).then(() => {
+                    db.ref('users/'+p).set({password:pw, wallet:25}).then(() => {
                         localStorage.setItem('p_user', p); location.reload();
                     });
                 }
@@ -185,6 +168,7 @@
         function openGame(id) { document.getElementById('lobby').style.display='none'; document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById(id).style.display='block'; }
         function backToLobby() { document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById('lobby').style.display='block'; }
         function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
+        function showNotify(msg) { const a = document.getElementById('custom-alert'); a.innerText = msg; a.classList.add('show'); setTimeout(() => a.classList.remove('show'), 3000); }
 
         setInterval(() => {
             let t = document.getElementById('timer');
