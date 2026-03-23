@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - No Refresh</title>
+    <title>Pandya Bet - Official</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
@@ -19,16 +19,17 @@
         .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
         
         input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
         
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 500px; margin: auto; }
-        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; }
+        /* --- LOADING BUTTON STYLE --- */
+        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        /* Aviator UI */
-        #aviator-area { background: #000; height: 200px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; margin: 15px 0; }
-        #multiplier { font-size: 45px; font-weight: bold; color: var(--gold); padding-top: 60px; transition: 0.2s; }
-        #plane { position: absolute; bottom: 20px; left: 10px; font-size: 35px; transition: 0.1s linear; }
-        .fly-away-text { color: var(--red) !important; }
+        /* Spinner Icon */
+        .spinner { 
+            width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.3); border-top: 3px solid black; 
+            border-radius: 50%; display: none; animation: spin 0.8s linear infinite; 
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
         /* Custom Notification */
         #custom-alert {
@@ -39,9 +40,9 @@
         }
         #custom-alert.show { top: 20px; }
 
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 500px; margin: auto; }
+        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; }
         .game-window { display: none; padding: 20px; }
-        .overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; display: none; align-items: center; justify-content: center; }
-        .popup { background: var(--card); padding: 25px; border-radius: 20px; border: 2px solid var(--gold); width: 80%; max-width: 300px; }
     </style>
 </head>
 <body>
@@ -49,14 +50,19 @@
     <div id="custom-alert">Message here!</div>
 
     <div id="auth-screen">
-        <h1 style="color: var(--gold); font-style: italic;">PANDYA BET</h1>
+        <h1 style="color: var(--gold); font-style: italic; margin-bottom: 30px;">PANDYA BET</h1>
         <div class="auth-box">
             <h2 id="auth-title">LOGIN</h2>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button class="btn" onclick="handleAuth()" id="main-btn">Login Now</button>
-            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; cursor:pointer;" id="toggle-text">Sign Up</p>
+            
+            <button class="btn" onclick="handleAuth()" id="main-btn">
+                <span id="btn-text">Login Now</span>
+                <div class="spinner" id="btn-loader"></div>
+            </button>
+            
+            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; cursor:pointer;" id="toggle-text">Don't have an account? Sign Up</p>
         </div>
     </div>
 
@@ -76,24 +82,15 @@
                     <span style="font-size:40px; display:block; margin-bottom:10px;">🎨</span><span style="font-weight:bold;">WIN GO</span>
                 </div>
             </div>
-            <button class="btn" style="background:#222; color:#888; width: 150px; margin-top: 50px;" onclick="userLogout()">Logout</button>
+            <button class="btn" style="background:#222; color:#888; width: 150px; margin: 50px auto 0;" onclick="userLogout()">Logout</button>
         </div>
 
         <div class="game-window" id="aviator-game">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white; cursor:pointer;">← Back</button>
             <h2 style="color:var(--red);">AVIATOR</h2>
-            <div id="aviator-area"><div id="multiplier">1.00x</div><div id="plane">✈️</div></div>
-            <input type="number" id="avi-amt" placeholder="Bet Amount">
-            <button id="start-avi" class="btn" style="background:var(--red); color:white;" onclick="startAviator()">Bet & Start</button>
-            <button id="cashout-avi" class="btn" style="background:var(--green); color:white; display:none;" onclick="cashOutAviator()">Cash Out</button>
+            <p>Game is ready!</p>
         </div>
     </div>
-
-    <div id="bonus-overlay" class="overlay"><div class="popup">
-        <h2 style="color:var(--gold);">CONGRATS!</h2>
-        <h1 id="bonus-amt" style="font-size: 50px; margin: 20px 0;">₹0</h1>
-        <button class="btn" onclick="claimBonus()">Claim Now</button>
-    </div></div>
 
     <script>
         const firebaseConfig = {
@@ -107,7 +104,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mode = 'login', loggedInUser = "", isFlying = false, currentMulti = 1.0, aviInterval;
+        let mode = 'login', loggedInUser = "";
 
         function showNotify(msg) {
             const alertBox = document.getElementById('custom-alert');
@@ -137,87 +134,51 @@
             mode = (mode === 'login') ? 'signup' : 'login';
             document.getElementById('auth-title').innerText = mode.toUpperCase();
             document.getElementById('c-pass').style.display = (mode === 'signup') ? 'block' : 'none';
-            document.getElementById('main-btn').innerText = (mode === 'signup') ? 'Create Account' : 'Login Now';
+            document.getElementById('main-btn').querySelector('#btn-text').innerText = (mode === 'signup') ? 'Create Account' : 'Login Now';
         }
 
         function handleAuth() {
             const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return showNotify("Fill details!");
-            if(mode === 'signup') {
-                const b = Math.floor(Math.random()*25)+8;
-                document.getElementById('bonus-amt').innerText = "₹"+b;
-                document.getElementById('bonus-overlay').style.display = 'flex';
-                loggedInUser = p;
-            } else {
-                db.ref('users/'+p).once('value').then(s => {
-                    if(s.exists() && s.val().password === pw) {
-                        localStorage.setItem('p_user', p); checkSession();
-                    } else showNotify("Wrong Pass!");
-                });
-            }
-        }
+            const btn = document.getElementById('main-btn');
+            const loader = document.getElementById('btn-loader');
+            const btnText = document.getElementById('btn-text');
 
-        function claimBonus() {
-            const p = loggedInUser, pw = document.getElementById('pass').value, b = parseInt(document.getElementById('bonus-amt').innerText.replace('₹',''));
-            db.ref('users/'+p).set({password:pw, wallet:b}).then(()=> {
-                localStorage.setItem('p_user',p); location.reload();
-            });
+            if(!p || !pw) return showNotify("Please fill all details!");
+
+            // --- START LOADING ---
+            btn.disabled = true;
+            loader.style.display = 'block';
+            btnText.innerText = "Verifying...";
+
+            // Thoda delay taaki loading spinner dikhe
+            setTimeout(() => {
+                if(mode === 'signup') {
+                    // Signup Logic
+                    db.ref('users/'+p).set({password:pw, wallet:20}).then(() => {
+                        localStorage.setItem('p_user', p);
+                        location.reload(); 
+                    });
+                } else {
+                    // Login Logic
+                    db.ref('users/'+p).once('value').then(s => {
+                        if(s.exists() && s.val().password === pw) {
+                            localStorage.setItem('p_user', p);
+                            checkSession();
+                        } else {
+                            showNotify("Invalid ID or Password!");
+                            // Stop Loading on error
+                            btn.disabled = false;
+                            loader.style.display = 'none';
+                            btnText.innerText = (mode === 'login') ? "Login Now" : "Create Account";
+                        }
+                    });
+                }
+            }, 1500); 
         }
 
         function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
         function openGame(id) { document.getElementById('lobby').style.display = 'none'; document.getElementById(id).style.display = 'block'; }
         function backToLobby() { document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById('lobby').style.display = 'block'; }
-
-        // --- AVIATOR LOGIC (NO REFRESH) ---
-        function startAviator() {
-            const amt = parseFloat(document.getElementById('avi-amt').value), bal = parseFloat(document.getElementById('u-bal').innerText);
-            if(!amt || amt < 10 || amt > bal) return showNotify("Check Balance!");
-
-            db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
-            isFlying = true; currentMulti = 1.0;
-            document.getElementById('multiplier').classList.remove('fly-away-text');
-            document.getElementById('start-avi').style.display = 'none';
-            document.getElementById('cashout-avi').style.display = 'block';
-
-            const crashAt = (Math.random() * 5 + 1.2).toFixed(2);
-            const plane = document.getElementById('plane');
-
-            aviInterval = setInterval(() => {
-                currentMulti += 0.05;
-                document.getElementById('multiplier').innerText = currentMulti.toFixed(2) + "x";
-                plane.style.left = (currentMulti * 20) + "px";
-                plane.style.bottom = (currentMulti * 15) + "px";
-
-                if(currentMulti >= crashAt) {
-                    clearInterval(aviInterval); isFlying = false;
-                    document.getElementById('multiplier').innerText = "FLY AWAY!";
-                    document.getElementById('multiplier').classList.add('fly-away-text');
-                    setTimeout(resetGameUI, 2000);
-                }
-            }, 100);
-        }
-
-        function cashOutAviator() {
-            if(!isFlying) return;
-            clearInterval(aviInterval); isFlying = false;
-            const amt = parseFloat(document.getElementById('avi-amt').value), win = amt * currentMulti;
-            const bal = parseFloat(document.getElementById('u-bal').innerText);
-            
-            db.ref('users/'+loggedInUser+'/wallet').set(bal + win).then(() => {
-                showNotify("Won ₹" + win.toFixed(2));
-                resetGameUI();
-            });
-        }
-
-        function resetGameUI() {
-            document.getElementById('start-avi').style.display = 'block';
-            document.getElementById('cashout-avi').style.display = 'none';
-            document.getElementById('multiplier').innerText = "1.00x";
-            document.getElementById('multiplier').classList.remove('fly-away-text');
-            const plane = document.getElementById('plane');
-            plane.style.left = "10px"; plane.style.bottom = "20px";
-            document.getElementById('avi-amt').value = "";
-        }
     </script>
 </body>
 </html>
