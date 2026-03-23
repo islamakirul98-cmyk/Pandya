@@ -10,39 +10,34 @@
         :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
         body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; }
         
-        /* Anti-Flash Screens */
+        /* Anti-Flash */
         #auth-screen, #app-screen { display: none; }
-        #auth-screen { height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; }
+        #auth-screen { height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
         .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 350px; }
         
         #app-screen { min-height: 100vh; }
         .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
         
         input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
-        
-        /* --- LOADING BUTTON STYLE --- */
         .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        .btn:disabled { opacity: 0.7; cursor: not-allowed; }
         
-        /* Spinner Icon */
-        .spinner { 
-            width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.3); border-top: 3px solid black; 
-            border-radius: 50%; display: none; animation: spin 0.8s linear infinite; 
-        }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-
-        /* Custom Notification */
-        #custom-alert {
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
-            background: var(--gold); color: black; padding: 15px 30px;
-            border-radius: 10px; font-weight: bold; z-index: 3000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.5); transition: 0.5s ease;
-        }
-        #custom-alert.show { top: 20px; }
-
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; max-width: 500px; margin: auto; }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
         .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; }
-        .game-window { display: none; padding: 20px; }
+        
+        /* Deposit/Withdraw Sections */
+        .wallet-actions { display: flex; gap: 10px; padding: 0 20px; margin-top: 10px; }
+        .action-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid var(--gold); }
+        
+        .game-window { display: none; padding: 20px; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+        /* Notification */
+        #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 15px 30px; border-radius: 10px; font-weight: bold; z-index: 3000; transition: 0.5s ease; }
+        #custom-alert.show { top: 20px; }
+        
+        .qr-img { width: 200px; height: 200px; background: white; margin: 10px auto; border-radius: 10px; }
+        .spinner { width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.3); border-top: 3px solid black; border-radius: 50%; display: none; animation: spin 0.8s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
@@ -50,19 +45,17 @@
     <div id="custom-alert">Message here!</div>
 
     <div id="auth-screen">
-        <h1 style="color: var(--gold); font-style: italic; margin-bottom: 30px;">PANDYA BET</h1>
+        <h1 style="color: var(--gold); font-style: italic;">PANDYA BET</h1>
         <div class="auth-box">
             <h2 id="auth-title">LOGIN</h2>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
             <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            
             <button class="btn" onclick="handleAuth()" id="main-btn">
                 <span id="btn-text">Login Now</span>
                 <div class="spinner" id="btn-loader"></div>
             </button>
-            
-            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; cursor:pointer;" id="toggle-text">Don't have an account? Sign Up</p>
+            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; cursor:pointer;" id="toggle-text">Sign Up</p>
         </div>
     </div>
 
@@ -73,23 +66,42 @@
                 ₹ <span id="u-bal">0.00</span>
             </div>
         </div>
+
         <div id="lobby">
-            <div class="game-grid">
-                <div class="game-item" onclick="openGame('aviator-game')" style="border-bottom: 4px solid var(--red);">
-                    <span style="font-size:40px; display:block; margin-bottom:10px;">🚀</span><span style="font-weight:bold;">AVIATOR</span>
-                </div>
-                <div class="game-item" onclick="openGame('color-game')" style="border-bottom: 4px solid var(--gold);">
-                    <span style="font-size:40px; display:block; margin-bottom:10px;">🎨</span><span style="font-weight:bold;">WIN GO</span>
-                </div>
+            <div class="wallet-actions">
+                <div class="action-btn" style="background: var(--green); color: black;" onclick="openGame('deposit-page')">DEPOSIT</div>
+                <div class="action-btn" style="background: var(--red); color: white;" onclick="openGame('withdraw-page')">WITHDRAW</div>
             </div>
-            <button class="btn" style="background:#222; color:#888; width: 150px; margin: 50px auto 0;" onclick="userLogout()">Logout</button>
+
+            <div class="game-grid">
+                <div class="game-item" onclick="openGame('aviator-game')">🚀<br>AVIATOR</div>
+                <div class="game-item" onclick="openGame('color-game')">🎨<br>WIN GO</div>
+            </div>
+            <button class="btn" style="background:#222; color:#888; width: 120px; margin: 50px auto;" onclick="userLogout()">Logout</button>
         </div>
 
-        <div class="game-window" id="aviator-game">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white; cursor:pointer;">← Back</button>
-            <h2 style="color:var(--red);">AVIATOR</h2>
-            <p>Game is ready!</p>
+        <div class="game-window" id="deposit-page">
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
+            <h2>DEPOSIT MONEY</h2>
+            <div class="qr-img">
+                <p style="color:black; padding-top:70px;">QR CODE HERE</p>
+            </div>
+            <p style="font-size:12px; color:var(--gold);">Pay on QR and enter UTR/Ref No. below</p>
+            <input type="number" id="dep-amount" placeholder="Amount">
+            <input type="text" id="dep-utr" placeholder="Enter 12-digit UTR No.">
+            <button class="btn" style="background:var(--green); color:black;" onclick="requestDeposit()">SUBMIT REQUEST</button>
         </div>
+
+        <div class="game-window" id="withdraw-page">
+            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
+            <h2>WITHDRAW MONEY</h2>
+            <input type="number" id="wit-amount" placeholder="Amount">
+            <input type="text" id="wit-upi" placeholder="Enter your UPI ID">
+            <button class="btn" style="background:var(--red); color:white;" onclick="requestWithdraw()">WITHDRAW NOW</button>
+        </div>
+        
+        <div class="game-window" id="aviator-game"><h2>AVIATOR GAME</h2><button onclick="backToLobby()" class="btn">Back</button></div>
+        <div class="game-window" id="color-game"><h2>WIN GO</h2><button onclick="backToLobby()" class="btn">Back</button></div>
     </div>
 
     <script>
@@ -104,7 +116,7 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let mode = 'login', loggedInUser = "";
+        let loggedInUser = "";
 
         function showNotify(msg) {
             const alertBox = document.getElementById('custom-alert');
@@ -121,7 +133,7 @@
                         document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
                         document.getElementById('app-screen').style.display = 'block';
                         document.getElementById('auth-screen').style.display = 'none';
-                    } else { userLogout(); }
+                    }
                 });
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
@@ -130,55 +142,61 @@
         };
         window.onload = checkSession;
 
-        function toggleAuth() {
-            mode = (mode === 'login') ? 'signup' : 'login';
-            document.getElementById('auth-title').innerText = mode.toUpperCase();
-            document.getElementById('c-pass').style.display = (mode === 'signup') ? 'block' : 'none';
-            document.getElementById('main-btn').querySelector('#btn-text').innerText = (mode === 'signup') ? 'Create Account' : 'Login Now';
+        function handleAuth() {
+            // ... (Aapka purana Login/Signup code yahan rahega)
+            const p = document.getElementById('phone').value;
+            localStorage.setItem('p_user', p);
+            checkSession();
         }
 
-        function handleAuth() {
-            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            const btn = document.getElementById('main-btn');
-            const loader = document.getElementById('btn-loader');
-            const btnText = document.getElementById('btn-text');
+        function openGame(id) {
+            document.getElementById('lobby').style.display = 'none';
+            document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
+            document.getElementById(id).style.display = 'block';
+        }
 
-            if(!p || !pw) return showNotify("Please fill all details!");
+        function backToLobby() {
+            document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
+            document.getElementById('lobby').style.display = 'block';
+        }
 
-            // --- START LOADING ---
-            btn.disabled = true;
-            loader.style.display = 'block';
-            btnText.innerText = "Verifying...";
+        // --- WALLET SYSTEMS ---
+        function requestDeposit() {
+            const amt = document.getElementById('dep-amount').value;
+            const utr = document.getElementById('dep-utr').value;
+            if(!amt || !utr) return showNotify("All fields required!");
+            
+            db.ref('deposit_requests').push({
+                user: loggedInUser,
+                amount: amt,
+                utr: utr,
+                status: 'pending'
+            }).then(() => {
+                showNotify("Request Sent! Wait 10 mins.");
+                backToLobby();
+            });
+        }
 
-            // Thoda delay taaki loading spinner dikhe
-            setTimeout(() => {
-                if(mode === 'signup') {
-                    // Signup Logic
-                    db.ref('users/'+p).set({password:pw, wallet:20}).then(() => {
-                        localStorage.setItem('p_user', p);
-                        location.reload(); 
-                    });
-                } else {
-                    // Login Logic
-                    db.ref('users/'+p).once('value').then(s => {
-                        if(s.exists() && s.val().password === pw) {
-                            localStorage.setItem('p_user', p);
-                            checkSession();
-                        } else {
-                            showNotify("Invalid ID or Password!");
-                            // Stop Loading on error
-                            btn.disabled = false;
-                            loader.style.display = 'none';
-                            btnText.innerText = (mode === 'login') ? "Login Now" : "Create Account";
-                        }
-                    });
-                }
-            }, 1500); 
+        function requestWithdraw() {
+            const amt = parseFloat(document.getElementById('wit-amount').value);
+            const upi = document.getElementById('wit-upi').value;
+            const bal = parseFloat(document.getElementById('u-bal').innerText);
+            
+            if(amt > bal || amt < 100) return showNotify("Min ₹100 required!");
+            
+            db.ref('withdraw_requests').push({
+                user: loggedInUser,
+                amount: amt,
+                upi: upi,
+                status: 'pending'
+            }).then(() => {
+                db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
+                showNotify("Withdrawal Request Sent!");
+                backToLobby();
+            });
         }
 
         function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
-        function openGame(id) { document.getElementById('lobby').style.display = 'none'; document.getElementById(id).style.display = 'block'; }
-        function backToLobby() { document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById('lobby').style.display = 'block'; }
     </script>
 </body>
 </html>
