@@ -3,134 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Premium</title>
+    <title>Pandya Bet - Official</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; }
         
-        /* Anti-Flash */
         #auth-screen, #app-screen { display: none; }
-
-        /* Header Styles */
-        .header { 
-            background: var(--card); padding: 12px 15px; display: flex; 
-            justify-content: space-between; align-items: center; 
-            border-bottom: 1px solid rgba(243, 156, 18, 0.2); 
-            position: sticky; top: 0; z-index: 100; 
-        }
-        .header-left { display: flex; align-items: center; gap: 15px; }
-        .menu-icon { font-size: 24px; cursor: pointer; color: var(--gold); }
-        .logo { font-size: 20px; font-weight: bold; color: var(--gold); font-style: italic; }
-        .wallet-badge { 
-            background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 20px; 
-            border: 1px solid var(--gold); color: var(--gold); font-weight: bold; 
-            cursor: pointer; display: flex; align-items: center; gap: 5px;
-        }
-
-        /* Side Navigation Menu */
-        .side-menu {
-            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
-            background: var(--card); z-index: 2000; transition: 0.4s;
-            box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; text-align: left;
-        }
-        .side-menu.active { left: 0; }
-        .menu-item { 
-            padding: 15px; border-bottom: 1px solid #333; cursor: pointer; 
-            display: flex; align-items: center; gap: 10px; font-weight: 500;
-        }
-        .menu-item:hover { color: var(--gold); }
-        .overlay-bg { 
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-            background: rgba(0,0,0,0.7); display: none; z-index: 1500; 
-        }
-
-        /* Common Styles */
-        .container { padding: 15px; max-width: 500px; margin: auto; }
+        #auth-screen { height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 350px; }
+        
+        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
+        
+        /* --- REFRESH BUTTON SYSTEM --- */
+        .btn-container { display: flex; gap: 10px; margin-top: 15px; }
         .btn { 
-            width: 100%; padding: 15px; background: var(--gold); color: black; 
-            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; 
-            text-transform: uppercase; margin-top: 15px;
+            flex: 1; height: 50px; border: none; border-radius: 10px; font-weight: bold; 
+            cursor: pointer; text-transform: uppercase; display: flex; 
+            align-items: center; justify-content: center; position: relative; overflow: hidden;
         }
-        input { 
-            width: 100%; padding: 14px; margin: 10px 0; background: #000; 
-            border: 1px solid #333; color: var(--gold); border-radius: 10px; 
-            outline: none; box-sizing: border-box; 
-        }
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
-        .game-item { background: var(--card); border-radius: 15px; padding: 25px 10px; border: 1px solid #333; cursor: pointer; }
         
-        #custom-alert { 
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
-            background: var(--gold); color: black; padding: 12px 25px; 
-            border-radius: 8px; font-weight: bold; z-index: 3000; transition: 0.5s; 
+        .login-btn { background: var(--gold); color: black; }
+        .signup-btn { background: #333; color: white; border: 1px solid #444; }
+        .btn:disabled { opacity: 0.8; cursor: not-allowed; }
+
+        /* Refresh/Spinner Icon */
+        .spinner {
+            width: 20px; height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            display: none; /* Default Hide */
+            animation: spin 0.8s linear infinite;
         }
+        .login-btn .spinner { border-top: 3px solid black; border-color: rgba(0,0,0,0.1); }
+
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* Notification */
+        #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 25px; border-radius: 8px; font-weight: bold; z-index: 3000; transition: 0.5s; }
         #custom-alert.show { top: 20px; }
-        
-        .game-window { display: none; padding: 20px; animation: slideUp 0.3s; }
-        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
     <div id="custom-alert">Message</div>
-    <div class="overlay-bg" id="menu-overlay" onclick="closeMenu()"></div>
 
-    <div class="side-menu" id="side-nav">
-        <h2 style="color: var(--gold); margin-bottom: 30px;">MENU</h2>
-        <div class="menu-item" onclick="openGame('deposit-page'); closeMenu();">💰 Deposit Money</div>
-        <div class="menu-item" onclick="openGame('withdraw-page'); closeMenu();">🏦 Withdraw Money</div>
-        <div class="menu-item" onclick="alert('Transaction History Coming Soon')">📜 Transactions</div>
-        <div class="menu-item" onclick="userLogout()" style="margin-top: 50px; color: var(--red);">🚪 Logout</div>
-    </div>
-
-    <div id="auth-screen" style="height: 100vh; display: flex; align-items: center; justify-content: center;">
-        <div style="background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 90%; max-width: 350px;">
-            <h1 style="color:var(--gold); font-style:italic;">PANDYA BET</h1>
+    <div id="auth-screen">
+        <h1 style="color: var(--gold); font-style: italic; margin-bottom: 30px;">PANDYA BET</h1>
+        <div class="auth-box">
+            <h2 id="form-title" style="margin-top: 0; font-size: 16px; color: #888;">SECURE LOGIN</h2>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
-            <button class="btn" onclick="handleAuth()">Login / Sign Up</button>
+            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
+            
+            <div class="btn-container">
+                <button class="btn login-btn" onclick="startProcess('login')" id="l-btn">
+                    <span id="l-text">Login</span>
+                    <div class="spinner" id="l-spinner"></div>
+                </button>
+                
+                <button class="btn signup-btn" onclick="startProcess('signup')" id="s-btn">
+                    <span id="s-text">Sign Up</span>
+                    <div class="spinner" id="s-spinner"></div>
+                </button>
+            </div>
         </div>
     </div>
 
     <div id="app-screen">
-        <div class="header">
-            <div class="header-left">
-                <div class="menu-icon" onclick="toggleMenu()">☰</div>
-                <div class="logo">PANDYA BET</div>
-            </div>
-            <div class="wallet-badge" onclick="openGame('deposit-page')">
-                <span>+</span> ₹ <span id="u-bal">0.00</span>
-            </div>
-        </div>
-
-        <div class="container" id="lobby">
-            <div class="game-grid">
-                <div class="game-item" onclick="openGame('aviator-game')">🚀<br>AVIATOR</div>
-                <div class="game-item" onclick="openGame('color-game')">🎨<br>WIN GO</div>
-            </div>
-        </div>
-
-        <div class="game-window" id="deposit-page">
-            <button onclick="backToLobby()" style="background:none; border:none; color:white; cursor:pointer;">← BACK</button>
-            <h2 style="color:var(--green);">DEPOSIT</h2>
-            <div style="background:white; width:180px; height:180px; margin:20px auto; border-radius:10px; color:black; padding-top:70px;">QR CODE</div>
-            <input type="number" id="dep-amt" placeholder="Enter Amount">
-            <input type="text" id="dep-utr" placeholder="12-digit UTR/Ref No.">
-            <button class="btn" style="background:var(--green); color:black;" onclick="submitDeposit()">SUBMIT DEPOSIT</button>
-        </div>
-
-        <div class="game-window" id="withdraw-page">
-            <button onclick="backToLobby()" style="background:none; border:none; color:white; cursor:pointer;">← BACK</button>
-            <h2 style="color:var(--red);">WITHDRAW</h2>
-            <input type="number" id="wit-amt" placeholder="Amount (Min ₹100)">
-            <input type="text" id="wit-upi" placeholder="Your UPI ID">
-            <button class="btn" style="background:var(--red); color:white;" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
-        </div>
-
-        <div class="game-window" id="aviator-game"><h2>AVIATOR GAME</h2><button onclick="backToLobby()" class="btn">Back</button></div>
-        <div class="game-window" id="color-game"><h2>WIN GO</h2><button onclick="backToLobby()" class="btn">Back</button></div>
+        <h2 style="color:var(--gold); margin-top:50px;">DASHBOARD ACTIVE ✅</h2>
+        <button class="btn signup-btn" style="width:150px; margin:auto;" onclick="localStorage.clear(); location.reload();">Logout</button>
     </div>
 
     <script>
@@ -145,7 +89,6 @@
         };
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
-        let loggedInUser = "";
 
         function showNotify(msg) {
             const a = document.getElementById('custom-alert');
@@ -153,78 +96,70 @@
             setTimeout(() => a.classList.remove('show'), 3000);
         }
 
-        const checkSession = () => {
-            const u = localStorage.getItem('p_user');
-            if(u) {
-                loggedInUser = u;
-                db.ref('users/'+u).on('value', s => {
-                    if(s.exists()) {
-                        document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
-                        document.getElementById('app-screen').style.display = 'block';
-                        document.getElementById('auth-screen').style.display = 'none';
-                    }
-                });
+        window.onload = () => {
+            if(localStorage.getItem('p_user')) {
+                document.getElementById('app-screen').style.display = 'block';
+                document.getElementById('auth-screen').style.display = 'none';
             } else {
                 document.getElementById('auth-screen').style.display = 'flex';
-                document.getElementById('app-screen').style.display = 'none';
             }
         };
-        window.onload = checkSession;
 
-        function handleAuth() {
-            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return showNotify("Enter details!");
-            db.ref('users/'+p).once('value', s => {
-                if(s.exists()) {
-                    if(s.val().password === pw) { localStorage.setItem('p_user', p); checkSession(); }
-                    else showNotify("Wrong password!");
-                } else {
-                    db.ref('users/'+p).set({password:pw, wallet:20}).then(() => {
-                        localStorage.setItem('p_user', p); checkSession();
-                    });
-                }
-            });
-        }
+        function startProcess(mode) {
+            const p = document.getElementById('phone').value;
+            const pw = document.getElementById('pass').value;
+            const cp = document.getElementById('c-pass');
 
-        // MENU LOGIC
-        function toggleMenu() {
-            document.getElementById('side-nav').classList.add('active');
-            document.getElementById('menu-overlay').style.display = 'block';
-        }
-        function closeMenu() {
-            document.getElementById('side-nav').classList.remove('active');
-            document.getElementById('menu-overlay').style.display = 'none';
-        }
+            // Toggle logic for signup
+            if(mode === 'signup' && cp.style.display === 'none') {
+                cp.style.display = 'block';
+                document.getElementById('form-title').innerText = "CREATE NEW ACCOUNT";
+                return;
+            }
 
-        function openGame(id) {
-            document.getElementById('lobby').style.display = 'none';
-            document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
-            document.getElementById(id).style.display = 'block';
-        }
-        function backToLobby() {
-            document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
-            document.getElementById('lobby').style.display = 'block';
-        }
+            if(!p || !pw) return showNotify("Enter ID & Password!");
 
-        function submitDeposit() {
-            const amt = document.getElementById('dep-amt').value, utr = document.getElementById('dep-utr').value;
-            if(!amt || !utr) return showNotify("Fill details!");
-            db.ref('deposits').push({user:loggedInUser, amt:amt, utr:utr, status:'pending'}).then(() => {
-                showNotify("Deposit Request Sent!"); backToLobby();
-            });
-        }
+            // --- REFRESH ANIMATION START ---
+            const btnId = mode === 'login' ? 'l' : 's';
+            const btn = document.getElementById(btnId + '-btn');
+            const text = document.getElementById(btnId + '-text');
+            const spinner = document.getElementById(btnId + '-spinner');
 
-        function submitWithdraw() {
-            const amt = parseFloat(document.getElementById('wit-amt').value), upi = document.getElementById('wit-upi').value;
-            const bal = parseFloat(document.getElementById('u-bal').innerText);
-            if(amt > bal || amt < 100) return showNotify("Check amount!");
-            db.ref('withdraws').push({user:loggedInUser, amt:amt, upi:upi, status:'pending'}).then(() => {
-                db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
-                showNotify("Withdrawal Sent!"); backToLobby();
-            });
+            text.style.display = 'none'; // Hide Text
+            spinner.style.display = 'block'; // Show Refresh Icon
+            btn.disabled = true;
+
+            // Artificial delay to show "Refreshing" effect
+            setTimeout(() => {
+                db.ref('users/'+p).once('value', s => {
+                    if(mode === 'login') {
+                        if(s.exists() && s.val().password === pw) {
+                            localStorage.setItem('p_user', p);
+                            location.reload();
+                        } else {
+                            showNotify("Invalid Details!");
+                            resetBtn(btnId);
+                        }
+                    } else {
+                        if(s.exists()) {
+                            showNotify("Already Registered!");
+                            resetBtn(btnId);
+                        } else {
+                            db.ref('users/'+p).set({password:pw, wallet:25}).then(() => {
+                                localStorage.setItem('p_user', p);
+                                location.reload();
+                            });
+                        }
+                    }
+                });
+            }, 1500);
         }
 
-        function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
+        function resetBtn(id) {
+            document.getElementById(id + '-text').style.display = 'block';
+            document.getElementById(id + '-spinner').style.display = 'none';
+            document.getElementById(id + '-btn').disabled = false;
+        }
     </script>
 </body>
 </html>
