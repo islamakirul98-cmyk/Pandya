@@ -3,103 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official</title>
+    <title>Pandya Bet - Premium</title>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
     <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
     <style>
         :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
-        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; text-align: center; margin: 0; padding: 0; }
+        body { background: var(--bg); color: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
         
         /* Anti-Flash */
         #auth-screen, #app-screen { display: none; }
-        #auth-screen { height: 100vh; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .auth-box { background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 100%; max-width: 350px; }
-        
-        #app-screen { min-height: 100vh; }
-        .header { background: var(--card); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid var(--gold); position: sticky; top: 0; z-index: 100; }
-        
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; gap: 10px; }
-        
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; padding: 20px; }
-        .game-item { background: var(--card); border-radius: 15px; padding: 20px; border: 1px solid #333; cursor: pointer; }
-        
-        /* Deposit/Withdraw Sections */
-        .wallet-actions { display: flex; gap: 10px; padding: 0 20px; margin-top: 10px; }
-        .action-btn { flex: 1; padding: 10px; border-radius: 8px; font-weight: bold; cursor: pointer; border: 1px solid var(--gold); }
-        
-        .game-window { display: none; padding: 20px; animation: fadeIn 0.3s; }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 
-        /* Notification */
-        #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 15px 30px; border-radius: 10px; font-weight: bold; z-index: 3000; transition: 0.5s ease; }
+        /* Header Styles */
+        .header { 
+            background: var(--card); padding: 12px 15px; display: flex; 
+            justify-content: space-between; align-items: center; 
+            border-bottom: 1px solid rgba(243, 156, 18, 0.2); 
+            position: sticky; top: 0; z-index: 100; 
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .menu-icon { font-size: 24px; cursor: pointer; color: var(--gold); }
+        .logo { font-size: 20px; font-weight: bold; color: var(--gold); font-style: italic; }
+        .wallet-badge { 
+            background: rgba(0,0,0,0.5); padding: 6px 12px; border-radius: 20px; 
+            border: 1px solid var(--gold); color: var(--gold); font-weight: bold; 
+            cursor: pointer; display: flex; align-items: center; gap: 5px;
+        }
+
+        /* Side Navigation Menu */
+        .side-menu {
+            position: fixed; top: 0; left: -280px; width: 260px; height: 100%;
+            background: var(--card); z-index: 2000; transition: 0.4s;
+            box-shadow: 5px 0 15px rgba(0,0,0,0.5); padding: 20px; text-align: left;
+        }
+        .side-menu.active { left: 0; }
+        .menu-item { 
+            padding: 15px; border-bottom: 1px solid #333; cursor: pointer; 
+            display: flex; align-items: center; gap: 10px; font-weight: 500;
+        }
+        .menu-item:hover { color: var(--gold); }
+        .overlay-bg { 
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+            background: rgba(0,0,0,0.7); display: none; z-index: 1500; 
+        }
+
+        /* Common Styles */
+        .container { padding: 15px; max-width: 500px; margin: auto; }
+        .btn { 
+            width: 100%; padding: 15px; background: var(--gold); color: black; 
+            border: none; border-radius: 10px; font-weight: bold; cursor: pointer; 
+            text-transform: uppercase; margin-top: 15px;
+        }
+        input { 
+            width: 100%; padding: 14px; margin: 10px 0; background: #000; 
+            border: 1px solid #333; color: var(--gold); border-radius: 10px; 
+            outline: none; box-sizing: border-box; 
+        }
+        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .game-item { background: var(--card); border-radius: 15px; padding: 25px 10px; border: 1px solid #333; cursor: pointer; }
+        
+        #custom-alert { 
+            position: fixed; top: -100px; left: 50%; transform: translateX(-50%); 
+            background: var(--gold); color: black; padding: 12px 25px; 
+            border-radius: 8px; font-weight: bold; z-index: 3000; transition: 0.5s; 
+        }
         #custom-alert.show { top: 20px; }
         
-        .qr-img { width: 200px; height: 200px; background: white; margin: 10px auto; border-radius: 10px; }
-        .spinner { width: 18px; height: 18px; border: 3px solid rgba(0,0,0,0.3); border-top: 3px solid black; border-radius: 50%; display: none; animation: spin 0.8s linear infinite; }
-        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .game-window { display: none; padding: 20px; animation: slideUp 0.3s; }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
     </style>
 </head>
 <body>
 
-    <div id="custom-alert">Message here!</div>
+    <div id="custom-alert">Message</div>
+    <div class="overlay-bg" id="menu-overlay" onclick="closeMenu()"></div>
 
-    <div id="auth-screen">
-        <h1 style="color: var(--gold); font-style: italic;">PANDYA BET</h1>
-        <div class="auth-box">
-            <h2 id="auth-title">LOGIN</h2>
+    <div class="side-menu" id="side-nav">
+        <h2 style="color: var(--gold); margin-bottom: 30px;">MENU</h2>
+        <div class="menu-item" onclick="openGame('deposit-page'); closeMenu();">💰 Deposit Money</div>
+        <div class="menu-item" onclick="openGame('withdraw-page'); closeMenu();">🏦 Withdraw Money</div>
+        <div class="menu-item" onclick="alert('Transaction History Coming Soon')">📜 Transactions</div>
+        <div class="menu-item" onclick="userLogout()" style="margin-top: 50px; color: var(--red);">🚪 Logout</div>
+    </div>
+
+    <div id="auth-screen" style="height: 100vh; display: flex; align-items: center; justify-content: center;">
+        <div style="background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 90%; max-width: 350px;">
+            <h1 style="color:var(--gold); font-style:italic;">PANDYA BET</h1>
             <input type="number" id="phone" placeholder="Mobile Number">
             <input type="password" id="pass" placeholder="Password">
-            <input type="password" id="c-pass" placeholder="Confirm Password" style="display:none;">
-            <button class="btn" onclick="handleAuth()" id="main-btn">
-                <span id="btn-text">Login Now</span>
-                <div class="spinner" id="btn-loader"></div>
-            </button>
-            <p onclick="toggleAuth()" style="color:#888; margin-top:20px; cursor:pointer;" id="toggle-text">Sign Up</p>
+            <button class="btn" onclick="handleAuth()">Login / Sign Up</button>
         </div>
     </div>
 
     <div id="app-screen">
         <div class="header">
-            <div style="font-weight: bold; color: var(--gold);">PANDYA BET</div>
-            <div style="background: #000; padding: 5px 15px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold;">
-                ₹ <span id="u-bal">0.00</span>
+            <div class="header-left">
+                <div class="menu-icon" onclick="toggleMenu()">☰</div>
+                <div class="logo">PANDYA BET</div>
+            </div>
+            <div class="wallet-badge" onclick="openGame('deposit-page')">
+                <span>+</span> ₹ <span id="u-bal">0.00</span>
             </div>
         </div>
 
-        <div id="lobby">
-            <div class="wallet-actions">
-                <div class="action-btn" style="background: var(--green); color: black;" onclick="openGame('deposit-page')">DEPOSIT</div>
-                <div class="action-btn" style="background: var(--red); color: white;" onclick="openGame('withdraw-page')">WITHDRAW</div>
-            </div>
-
+        <div class="container" id="lobby">
             <div class="game-grid">
                 <div class="game-item" onclick="openGame('aviator-game')">🚀<br>AVIATOR</div>
                 <div class="game-item" onclick="openGame('color-game')">🎨<br>WIN GO</div>
             </div>
-            <button class="btn" style="background:#222; color:#888; width: 120px; margin: 50px auto;" onclick="userLogout()">Logout</button>
         </div>
 
         <div class="game-window" id="deposit-page">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
-            <h2>DEPOSIT MONEY</h2>
-            <div class="qr-img">
-                <p style="color:black; padding-top:70px;">QR CODE HERE</p>
-            </div>
-            <p style="font-size:12px; color:var(--gold);">Pay on QR and enter UTR/Ref No. below</p>
-            <input type="number" id="dep-amount" placeholder="Amount">
-            <input type="text" id="dep-utr" placeholder="Enter 12-digit UTR No.">
-            <button class="btn" style="background:var(--green); color:black;" onclick="requestDeposit()">SUBMIT REQUEST</button>
+            <button onclick="backToLobby()" style="background:none; border:none; color:white; cursor:pointer;">← BACK</button>
+            <h2 style="color:var(--green);">DEPOSIT</h2>
+            <div style="background:white; width:180px; height:180px; margin:20px auto; border-radius:10px; color:black; padding-top:70px;">QR CODE</div>
+            <input type="number" id="dep-amt" placeholder="Enter Amount">
+            <input type="text" id="dep-utr" placeholder="12-digit UTR/Ref No.">
+            <button class="btn" style="background:var(--green); color:black;" onclick="submitDeposit()">SUBMIT DEPOSIT</button>
         </div>
 
         <div class="game-window" id="withdraw-page">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
-            <h2>WITHDRAW MONEY</h2>
-            <input type="number" id="wit-amount" placeholder="Amount">
-            <input type="text" id="wit-upi" placeholder="Enter your UPI ID">
-            <button class="btn" style="background:var(--red); color:white;" onclick="requestWithdraw()">WITHDRAW NOW</button>
+            <button onclick="backToLobby()" style="background:none; border:none; color:white; cursor:pointer;">← BACK</button>
+            <h2 style="color:var(--red);">WITHDRAW</h2>
+            <input type="number" id="wit-amt" placeholder="Amount (Min ₹100)">
+            <input type="text" id="wit-upi" placeholder="Your UPI ID">
+            <button class="btn" style="background:var(--red); color:white;" onclick="submitWithdraw()">REQUEST WITHDRAW</button>
         </div>
-        
+
         <div class="game-window" id="aviator-game"><h2>AVIATOR GAME</h2><button onclick="backToLobby()" class="btn">Back</button></div>
         <div class="game-window" id="color-game"><h2>WIN GO</h2><button onclick="backToLobby()" class="btn">Back</button></div>
     </div>
@@ -119,9 +148,9 @@
         let loggedInUser = "";
 
         function showNotify(msg) {
-            const alertBox = document.getElementById('custom-alert');
-            alertBox.innerText = msg; alertBox.classList.add('show');
-            setTimeout(() => { alertBox.classList.remove('show'); }, 3000);
+            const a = document.getElementById('custom-alert');
+            a.innerText = msg; a.classList.add('show');
+            setTimeout(() => a.classList.remove('show'), 3000);
         }
 
         const checkSession = () => {
@@ -143,10 +172,28 @@
         window.onload = checkSession;
 
         function handleAuth() {
-            // ... (Aapka purana Login/Signup code yahan rahega)
-            const p = document.getElementById('phone').value;
-            localStorage.setItem('p_user', p);
-            checkSession();
+            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
+            if(!p || !pw) return showNotify("Enter details!");
+            db.ref('users/'+p).once('value', s => {
+                if(s.exists()) {
+                    if(s.val().password === pw) { localStorage.setItem('p_user', p); checkSession(); }
+                    else showNotify("Wrong password!");
+                } else {
+                    db.ref('users/'+p).set({password:pw, wallet:20}).then(() => {
+                        localStorage.setItem('p_user', p); checkSession();
+                    });
+                }
+            });
+        }
+
+        // MENU LOGIC
+        function toggleMenu() {
+            document.getElementById('side-nav').classList.add('active');
+            document.getElementById('menu-overlay').style.display = 'block';
+        }
+        function closeMenu() {
+            document.getElementById('side-nav').classList.remove('active');
+            document.getElementById('menu-overlay').style.display = 'none';
         }
 
         function openGame(id) {
@@ -154,45 +201,26 @@
             document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
             document.getElementById(id).style.display = 'block';
         }
-
         function backToLobby() {
             document.querySelectorAll('.game-window').forEach(w => w.style.display = 'none');
             document.getElementById('lobby').style.display = 'block';
         }
 
-        // --- WALLET SYSTEMS ---
-        function requestDeposit() {
-            const amt = document.getElementById('dep-amount').value;
-            const utr = document.getElementById('dep-utr').value;
-            if(!amt || !utr) return showNotify("All fields required!");
-            
-            db.ref('deposit_requests').push({
-                user: loggedInUser,
-                amount: amt,
-                utr: utr,
-                status: 'pending'
-            }).then(() => {
-                showNotify("Request Sent! Wait 10 mins.");
-                backToLobby();
+        function submitDeposit() {
+            const amt = document.getElementById('dep-amt').value, utr = document.getElementById('dep-utr').value;
+            if(!amt || !utr) return showNotify("Fill details!");
+            db.ref('deposits').push({user:loggedInUser, amt:amt, utr:utr, status:'pending'}).then(() => {
+                showNotify("Deposit Request Sent!"); backToLobby();
             });
         }
 
-        function requestWithdraw() {
-            const amt = parseFloat(document.getElementById('wit-amount').value);
-            const upi = document.getElementById('wit-upi').value;
+        function submitWithdraw() {
+            const amt = parseFloat(document.getElementById('wit-amt').value), upi = document.getElementById('wit-upi').value;
             const bal = parseFloat(document.getElementById('u-bal').innerText);
-            
-            if(amt > bal || amt < 100) return showNotify("Min ₹100 required!");
-            
-            db.ref('withdraw_requests').push({
-                user: loggedInUser,
-                amount: amt,
-                upi: upi,
-                status: 'pending'
-            }).then(() => {
+            if(amt > bal || amt < 100) return showNotify("Check amount!");
+            db.ref('withdraws').push({user:loggedInUser, amt:amt, upi:upi, status:'pending'}).then(() => {
                 db.ref('users/'+loggedInUser+'/wallet').set(bal - amt);
-                showNotify("Withdrawal Request Sent!");
-                backToLobby();
+                showNotify("Withdrawal Sent!"); backToLobby();
             });
         }
 
