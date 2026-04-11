@@ -3,180 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>Flipkart Clone</title>
     <style>
-        :root { --gold: #f39c12; --bg: #0b0e14; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; }
-        body { background: var(--bg); color: white; font-family: sans-serif; margin: 0; padding: 0; overflow-x: hidden; }
-        
-        /* Shuruat mein dono hide rahenge */
-        #auth-screen, #app-screen { display: none; }
-
-        /* Header Fix */
-        .header { background: var(--card); padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(243, 156, 18, 0.2); position: sticky; top: 0; z-index: 100; }
-        .logo-group { display: flex; align-items: center; gap: 12px; }
-        .menu-icon { font-size: 24px; cursor: pointer; color: var(--gold); }
-        .logo { font-size: 18px; font-weight: bold; color: var(--gold); font-style: italic; }
-        .wallet-badge { background: #000; padding: 6px 15px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; cursor: pointer; }
-
-        /* Side Menu Line Fix */
-        .side-menu { 
-            position: fixed; top: 0; left: -300px; width: 260px; height: 100%; 
-            background: var(--card); z-index: 2000; transition: 0.3s ease; 
-            padding: 20px; visibility: hidden;
+        /* General Styling */
+        body { 
+            margin: 0; 
+            font-family: Arial, sans-serif; 
+            background-color: #f1f3f6; /* Flipkart's background color */
         }
-        .side-menu.active { left: 0; visibility: visible; box-shadow: 5px 0 15px rgba(0,0,0,0.5); }
-        .menu-item { padding: 15px; border-bottom: 1px solid #333; cursor: pointer; display: flex; align-items: center; gap: 10px; }
-        .overlay-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); display: none; z-index: 1500; }
-
-        /* Aviator Design */
-        #aviator-area { background: #000; height: 180px; border-radius: 15px; position: relative; overflow: hidden; border: 1px solid #333; margin: 15px 0; }
-        #multiplier { font-size: 40px; font-weight: bold; color: var(--gold); padding-top: 50px; text-align: center; }
-        #plane { position: absolute; bottom: 20px; left: 10px; font-size: 30px; transition: 0.1s linear; }
-
-        /* Common */
-        .container { padding: 15px; max-width: 500px; margin: auto; }
-        .game-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
-        .game-item { background: var(--card); border-radius: 15px; padding: 25px 10px; border: 1px solid #333; cursor: pointer; text-align: center; }
-        .btn { width: 100%; padding: 15px; background: var(--gold); color: black; border: none; border-radius: 10px; font-weight: bold; cursor: pointer; margin-top: 10px; text-transform: uppercase; }
-        input { width: 100%; padding: 14px; margin: 10px 0; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 10px; outline: none; box-sizing: border-box; }
         
-        .game-window { display: none; padding: 20px; }
-        #custom-alert { position: fixed; top: -100px; left: 50%; transform: translateX(-50%); background: var(--gold); color: black; padding: 12px 25px; border-radius: 8px; font-weight: bold; z-index: 3000; transition: 0.4s; }
-        #custom-alert.show { top: 20px; }
+        /* Navbar Styling */
+        .navbar { 
+            background-color: #2874f0; 
+            padding: 10px 40px; 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            color: white; 
+        }
+        .navbar .logo { 
+            font-size: 22px; 
+            font-weight: bold; 
+            font-style: italic; 
+        }
+        .search-bar { 
+            flex-grow: 1; 
+            margin: 0 30px; 
+            padding: 10px; 
+            border-radius: 2px; 
+            border: none; 
+            outline: none;
+        }
+        .nav-links { 
+            display: flex; 
+            gap: 30px; 
+            align-items: center;
+        }
+        .nav-links a { 
+            color: white; 
+            text-decoration: none; 
+            font-weight: bold; 
+        }
+        .login-btn {
+            background-color: white;
+            color: #2874f0;
+            padding: 5px 20px;
+            font-weight: bold;
+            border: none;
+            cursor: pointer;
+            border-radius: 2px;
+        }
+
+        /* Product Grid Styling */
+        .container { 
+            padding: 20px 40px; 
+            display: grid; 
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); 
+            gap: 20px; 
+        }
+        .product-card { 
+            background: white; 
+            padding: 15px; 
+            text-align: center; 
+            border-radius: 4px; 
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
+            transition: transform 0.2s;
+        }
+        .product-card:hover {
+            transform: scale(1.02);
+        }
+        .product-card img { 
+            max-width: 100%; 
+            height: 150px; 
+            object-fit: contain; 
+        }
+        .product-title {
+            font-size: 16px;
+            color: #212121;
+            margin: 10px 0;
+        }
+        .price { 
+            font-size: 18px; 
+            font-weight: bold; 
+            color: #212121; 
+        }
+        .add-to-cart-btn { 
+            background-color: #ff9f00; 
+            color: white; 
+            border: none; 
+            padding: 12px; 
+            width: 100%; 
+            cursor: pointer; 
+            font-weight: bold; 
+            margin-top: 10px; 
+            border-radius: 2px;
+        }
     </style>
 </head>
 <body>
 
-    <div id="custom-alert">Message</div>
-    <div class="overlay-bg" id="menu-overlay" onclick="closeMenu()"></div>
-
-    <div class="side-menu" id="side-nav">
-        <h2 style="color: var(--gold);">PANDYA MENU</h2>
-        <div class="menu-item" onclick="openGame('deposit-page'); closeMenu();">💰 Deposit</div>
-        <div class="menu-item" onclick="openGame('withdraw-page'); closeMenu();">🏦 Withdraw</div>
-        <div class="menu-item" onclick="userLogout()" style="color: var(--red); margin-top: 50px;">🚪 Logout</div>
-    </div>
-
-    <div id="auth-screen" style="height:100vh; display:flex; align-items:center; justify-content:center;">
-        <div style="background: var(--card); padding: 30px; border-radius: 20px; border: 1px solid var(--gold); width: 90%; max-width: 350px;">
-            <h1 style="color: var(--gold); font-style: italic;">PANDYA BET</h1>
-            <input type="number" id="phone" placeholder="Mobile Number">
-            <input type="password" id="pass" placeholder="Password">
-            <button class="btn" onclick="handleAuth()">Login / Sign Up</button>
+    <div class="navbar">
+        <div class="logo">Flipkart</div>
+        <input type="text" class="search-bar" placeholder="Search for products, brands and more">
+        <div class="nav-links">
+            <button class="login-btn">Login</button>
+            <a href="#">Become a Seller</a>
+            <a href="#">More</a>
+            <a href="#">Cart</a>
         </div>
     </div>
 
-    <div id="app-screen">
-        <div class="header">
-            <div class="logo-group">
-                <div class="menu-icon" onclick="toggleMenu()">☰</div>
-                <div class="logo">PANDYA BET</div>
-            </div>
-            <div class="wallet-badge" onclick="openGame('deposit-page')">₹ <span id="u-bal">0.00</span></div>
+    <div class="container">
+        <div class="product-card">
+            <img src="https://rukminim2.flixcart.com/image/312/312/xif0q/mobile/k/l/l/-original-imagtc5fz9spysyk.jpeg" alt="Phone">
+            <div class="product-title">Apple iPhone 15</div>
+            <div class="price">₹72,999</div>
+            <button class="add-to-cart-btn">Add to Cart</button>
         </div>
 
-        <div class="container" id="lobby">
-            <div class="game-grid">
-                <div class="game-item" onclick="openGame('aviator-game')">🚀<br><b>AVIATOR</b></div>
-                <div class="game-item" onclick="openGame('color-game')">🎨<br><b>WIN GO</b></div>
-            </div>
+        <div class="product-card">
+            <img src="https://rukminim2.flixcart.com/image/612/612/xif0q/headphone/p/r/z/buds-vs104-max-80h-playtime-quad-mics-enc-13mm-driver-dual-original-imagqeyfzdzzwbbw.jpeg" alt="Earbuds">
+            <div class="product-title">boAt Airdopes</div>
+            <div class="price">₹1,299</div>
+            <button class="add-to-cart-btn">Add to Cart</button>
         </div>
 
-        <div class="game-window" id="aviator-game">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white; cursor:pointer;">← Back</button>
-            <h2 style="color:var(--red); text-align: center;">🚀 AVIATOR</h2>
-            <div id="aviator-area"><div id="multiplier">1.00x</div><div id="plane">✈️</div></div>
-            <input type="number" id="avi-amt" placeholder="Bet Amount">
-            <button id="start-avi" class="btn" style="background:var(--red); color:white;" onclick="startAviator()">Bet & Start</button>
-            <button id="cashout-avi" class="btn" style="background:var(--green); color:white; display:none;" onclick="cashOutAviator()">Cash Out</button>
+        <div class="product-card">
+            <img src="https://rukminim2.flixcart.com/image/312/312/xif0q/computer/v/y/z/-original-imagtq4fzzgfbngn.jpeg" alt="Laptop">
+            <div class="product-title">HP Pavilion Gaming</div>
+            <div class="price">₹55,000</div>
+            <button class="add-to-cart-btn">Add to Cart</button>
         </div>
 
-        <div class="game-window" id="color-game">
-            <button onclick="backToLobby()" style="float:left; background:none; border:none; color:white;">← Back</button>
-            <h2 style="color:var(--gold); text-align: center;">🎨 WIN GO</h2>
-            <p style="text-align: center;">Timer: <span id="timer">15</span>s</p>
-        </div>
-
-        <div class="game-window" id="deposit-page">
-            <button onclick="backToLobby()" style="background:none; border:none; color:white;">← Back</button>
-            <h2 style="text-align: center;">DEPOSIT</h2>
-            <div style="background:white; width:150px; height:150px; margin:20px auto; border-radius:10px; color:black; text-align:center; padding-top:60px;">QR CODE</div>
-            <input type="number" id="dep-amt" placeholder="Amount"><input type="text" id="dep-utr" placeholder="UTR Number">
-            <button class="btn" style="background:var(--green); color:black;" onclick="showNotify('Request Sent!')">Submit</button>
+        <div class="product-card">
+            <img src="https://rukminim2.flixcart.com/image/612/612/xif0q/smartwatch/f/k/1/-original-imagsy4hhhyzygrj.jpeg" alt="Watch">
+            <div class="product-title">Noise Smartwatch</div>
+            <div class="price">₹1,999</div>
+            <button class="add-to-cart-btn">Add to Cart</button>
         </div>
     </div>
 
-    <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAcG9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
-            authDomain: "pandya-bet.firebaseapp.com",
-            databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com",
-            projectId: "pandya-bet",
-            storageBucket: "pandya-bet.firebasestorage.app",
-            messagingSenderId: "145616340494",
-            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let loggedUser = "", isFlying = false, multi = 1.0, aviInt;
-
-        // CHECK SESSION (NO FLASH)
-        if(localStorage.getItem('p_user')) {
-            const u = localStorage.getItem('p_user');
-            loggedUser = u;
-            db.ref('users/'+u).on('value', s => {
-                if(s.exists()){
-                    document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
-                    document.getElementById('app-screen').style.display = 'block';
-                    document.getElementById('auth-screen').style.display = 'none';
-                }
-            });
-        } else {
-            document.addEventListener("DOMContentLoaded", () => {
-                document.getElementById('auth-screen').style.display = 'flex';
-            });
-        }
-
-        function handleAuth() {
-            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            db.ref('users/'+p).once('value', s => {
-                if(s.exists()){
-                    if(s.val().password === pw) { localStorage.setItem('p_user', p); location.reload(); }
-                    else showNotify("Wrong password!");
-                } else {
-                    db.ref('users/'+p).set({password:pw, wallet:25}).then(() => {
-                        localStorage.setItem('p_user', p); location.reload();
-                    });
-                }
-            });
-        }
-
-        function toggleMenu() { 
-            const nav = document.getElementById('side-nav');
-            nav.style.visibility = 'visible';
-            nav.classList.add('active'); 
-            document.getElementById('menu-overlay').style.display='block'; 
-        }
-        function closeMenu() { 
-            const nav = document.getElementById('side-nav');
-            nav.classList.remove('active'); 
-            document.getElementById('menu-overlay').style.display='none'; 
-            setTimeout(() => { if(!nav.classList.contains('active')) nav.style.visibility = 'hidden'; }, 300)
-        }
-        function openGame(id) { document.getElementById('lobby').style.display='none'; document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById(id).style.display='block'; }
-        function backToLobby() { document.querySelectorAll('.game-window').forEach(w=>w.style.display='none'); document.getElementById('lobby').style.display='block'; }
-        function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
-        function showNotify(msg) { const a = document.getElementById('custom-alert'); a.innerText = msg; a.classList.add('show'); setTimeout(() => a.classList.remove('show'), 3000); }
-
-        setInterval(() => {
-            let t = document.getElementById('timer');
-            if(t) {
-                let val = parseInt(t.innerText);
-                t.innerText = (val <= 1) ? 15 : val - 1;
-            }
-        }, 1000);
-    </script>
 </body>
 </html>
