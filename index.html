@@ -3,260 +3,196 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Official Aviator</title>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+    <title>Pandya Bet - Login</title>
     <style>
-        :root { --gold: #f39c12; --bg: #000; --card: #1c2128; --red: #e74c3c; --green: #2ecc71; --blue: #3498db; }
-        body { background: var(--bg); color: white; font-family: 'Arial', sans-serif; margin: 0; padding: 0; text-align: center; overflow-x: hidden; }
-        
-        #auth-screen, #app-screen { display: none; }
-
-        /* Professional Header */
-        .header { background: #111; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--card); position: sticky; top: 0; z-index: 100; }
-        .logo { font-size: 20px; font-weight: bold; color: var(--gold); font-style: italic; }
-        .wallet-badge { background: rgba(0,0,0,0.7); padding: 5px 12px; border-radius: 20px; border: 1px solid var(--gold); color: var(--gold); font-weight: bold; }
-        
-        /* Main Container */
-        .container { padding: 15px; max-width: 500px; margin: auto; }
-        
-        /* --- PROFESSIONAL AVIATOR UI --- */
-        #aviator-area {
-            background: radial-gradient(circle at bottom left, #1a1a1a, #000);
-            height: 250px; border-radius: 12px; position: relative;
-            overflow: hidden; border: 2px solid #222; margin-bottom: 15px;
-            box-shadow: inset 0 0 50px rgba(0,0,0,0.8);
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
-        
-        /* Grid Lines for Graph */
-        .graph-grid { position: absolute; width: 100%; height: 100%; background-image: linear-gradient(#222 1px, transparent 1px), linear-gradient(90deg, #222 1px, transparent 1px); background-size: 30px 30px; opacity: 0.5; }
 
-        /* Huge Multiplier in Center */
-        #multiplier {
-            font-size: 60px; font-weight: 900; color: white;
-            position: absolute; top: 50%; left: 50%;
-            transform: translate(-50%, -50%); z-index: 5;
-            transition: color 0.2s; text-shadow: 0 0 15px rgba(255,255,255,0.5);
+        body {
+            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            color: #ffffff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
         }
-        
-        /* Red X when crashed */
-        .crashed-multi { color: var(--red) !important; text-shadow: 0 0 15px rgba(231,76,60,0.5) !important; }
 
-        /* The Plane (udega diagonal) */
-        #plane {
-            position: absolute; bottom: 20px; left: 10px;
-            font-size: 35px; z-index: 4;
-            transition: all 0.1s linear; /* Smooth transition */
-            transform: rotate(-15deg); /* Tircha plane */
+        .login-container {
+            background: rgba(30, 41, 59, 0.7);
+            padding: 40px;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            width: 100%;
+            max-width: 400px;
+            text-align: center;
         }
-        
-        /* Input & Buttons */
-        .bet-controls { background: var(--card); padding: 15px; border-radius: 12px; border: 1px solid #333; margin-top: 10px; }
-        input { width: 100%; padding: 14px; margin: 5px 0 10px; background: #000; border: 1px solid #333; color: var(--gold); border-radius: 8px; outline: none; box-sizing: border-box; font-size: 16px; font-weight: bold; }
-        .btn { width: 100%; padding: 15px; border: none; border-radius: 10px; font-weight: 900; cursor: pointer; text-transform: uppercase; font-size: 16px; letter-spacing: 1px; }
-        
-        /* Bet Button (Red) */
-        #start-avi { background: var(--red); color: white; box-shadow: 0 4px 0 #a93226; }
-        #start-avi:active { transform: translateY(2px); box-shadow: 0 2px 0 #a93226; }
 
-        /* Cashout Button (Green with dynamic win) */
-        #cashout-avi { background: var(--green); color: black; display: none; }
-        #cashout-avi b { font-size: 18px; }
-
-        /* Notification */
-        #custom-alert {
-            position: fixed; top: -100px; left: 50%; transform: translateX(-50%);
-            background: var(--gold); color: black; padding: 12px 25px;
-            border-radius: 8px; font-weight: bold; z-index: 3000;
-            transition: 0.4s; box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+        .logo-area h1 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            background: linear-gradient(to right, #f59e0b, #e11d48);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-transform: uppercase;
+            letter-spacing: 2px;
         }
-        #custom-alert.show { top: 20px; }
-        
-        /* Auth */
-        .auth-box { background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--gold); width: 90%; max-width: 350px; margin: 100px auto; }
+
+        .logo-area p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+            margin-bottom: 30px;
+        }
+
+        .input-group {
+            margin-bottom: 20px;
+            text-align: left;
+        }
+
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #cbd5e1;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .input-group input {
+            width: 100%;
+            padding: 12px 16px;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .input-group input:focus {
+            outline: none;
+            border-color: #f59e0b;
+            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
+        }
+
+        .actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            font-size: 0.85rem;
+        }
+
+        .remember-me {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            color: #cbd5e1;
+            cursor: pointer;
+        }
+
+        .forgot-pass {
+            color: #f59e0b;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .forgot-pass:hover {
+            color: #e11d48;
+            text-decoration: underline;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(to right, #f59e0b, #d97706);
+            border: none;
+            border-radius: 8px;
+            color: #0f172a;
+            font-size: 1rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.1s, opacity 0.2s;
+        }
+
+        .login-btn:hover {
+            opacity: 0.95;
+        }
+
+        .login-btn:active {
+            transform: scale(0.98);
+        }
+
+        .register-link {
+            margin-top: 25px;
+            font-size: 0.9rem;
+            color: #94a3b8;
+        }
+
+        .register-link a {
+            color: #f59e0b;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .register-link a:hover {
+            text-decoration: underline;
+        }
     </style>
 </head>
 <body>
 
-    <div id="custom-alert">Message</div>
-
-    <div id="auth-screen">
-        <div class="auth-box">
-            <h1 style="color: var(--gold); font-style: italic; margin: 0 0 20px 0;">PANDYA BET</h1>
-            <input type="number" id="phone" placeholder="Mobile Number">
-            <input type="password" id="pass" placeholder="Password">
-            <button class="btn" style="background:var(--gold); color:black;" onclick="handleAuth()">Login / Sign Up</button>
-        </div>
-    </div>
-
-    <div id="app-screen">
-        <div class="header">
-            <div class="logo">PANDYA BET</div>
-            <div class="wallet-badge">₹ <span id="u-bal">0.00</span></div>
+    <div class="login-container">
+        <div class="logo-area">
+            <h1>Pandya Bet</h1>
+            <p>Welcome back! Please login to your account.</p>
         </div>
 
-        <div class="container">
-            <h3 style="text-align: left; color: #555; margin-bottom: 10px;">PRO AVIATOR</h3>
-            
-            <div id="aviator-area">
-                <div class="graph-grid"></div>
-                <div id="multiplier">1.00x</div>
-                <div id="plane">✈️</div>
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="input-group">
+                <label for="username">Username / Phone Number</label>
+                <input type="text" id="username" placeholder="Enter username or mobile" required>
             </div>
-            
-            <div class="bet-controls">
-                <input type="number" id="avi-amt" placeholder="Enter Bet Amount">
-                
-                <button id="start-avi" class="btn" onclick="startAviator()">BET</button>
-                
-                <button id="cashout-avi" class="btn" onclick="cashOutAviator()">
-                    CASH OUT<br><b>₹ <span id="can-win">0.00</span></b>
-                </button>
+
+            <div class="input-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter your password" required>
             </div>
-            
-            <button class="btn" style="background:#222; color:#888; width: 120px; margin-top: 50px; font-size: 12px; padding: 10px;" onclick="userLogout()">Logout</button>
+
+            <div class="actions">
+                <label class="remember-me">
+                    <input type="checkbox" id="remember"> Remember me
+                </label>
+                <a href="#" class="forgot-pass">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="login-btn">LOG IN</button>
+        </form>
+
+        <div class="register-link">
+            Don't have an account? <a href="#">Register Now</a>
         </div>
     </div>
 
     <script>
-        const firebaseConfig = {
-            apiKey: "AIzaSyAcB9CR4x8SEngX01Rte_u8i6_k3Z18UkI",
-            authDomain: "pandya-bet.firebaseapp.com",
-            databaseURL: "https://pandya-bet-default-rtdb.firebaseio.com",
-            projectId: "pandya-bet",
-            storageBucket: "pandya-bet.firebasestorage.app",
-            messagingSenderId: "145616340494",
-            appId: "1:145616340494:web:16f4294e77a7c89fb21e5f"
-        };
-        firebase.initializeApp(firebaseConfig);
-        const db = firebase.database();
-        let loggedUser = "", isFlying = false, multi = 1.0, aviInt, betAmt = 0;
+        function handleLogin(event) {
+            event.preventDefault();
+            
+            const user = document.getElementById('username').value;
+            const pass = document.getElementById('password').value;
 
-        function showNotify(msg, type='gold') {
-            const a = document.getElementById('custom-alert');
-            a.innerText = msg;
-            a.style.background = type === 'red' ? '#e74c3c' : '#f39c12';
-            a.style.color = type === 'red' ? 'white' : 'black';
-            a.classList.add('show');
-            setTimeout(() => a.classList.remove('show'), 3000);
+            // यहाँ आप अपना बैकएंड या वैलिडेशन लॉजिक जोड़ सकते हैं
+            console.log("Logging in with:", user);
+            alert("Login function triggered for user: " + user);
         }
-
-        // Session Check
-        window.onload = () => {
-            const u = localStorage.getItem('p_user');
-            if(u) {
-                loggedUser = u;
-                db.ref('users/'+u).on('value', s => {
-                    if(s.exists()){
-                        document.getElementById('u-bal').innerText = parseFloat(s.val().wallet).toFixed(2);
-                        document.getElementById('app-screen').style.display = 'block';
-                    }
-                });
-            } else {
-                document.getElementById('auth-screen').style.display = 'block';
-            }
-        };
-
-        function handleAuth() {
-            const p = document.getElementById('phone').value, pw = document.getElementById('pass').value;
-            if(!p || !pw) return showNotify("Enter details!", 'red');
-            db.ref('users/'+p).once('value', s => {
-                if(s.exists()){
-                    if(s.val().password === pw) { localStorage.setItem('p_user', p); location.reload(); }
-                    else showNotify("Wrong password!", 'red');
-                } else {
-                    db.ref('users/'+p).set({password:pw, wallet:50}).then(() => {
-                        localStorage.setItem('p_user', p); location.reload();
-                    });
-                }
-            });
-        }
-
-        // --- REAL AVIATOR LOGIC ---
-        function startAviator() {
-            betAmt = parseFloat(document.getElementById('avi-amt').value);
-            const bal = parseFloat(document.getElementById('u-bal').innerText);
-            
-            if(!betAmt || betAmt < 10 || betAmt > bal) return showNotify("Check Balance!", 'red');
-            
-            // Deduct money immediately
-            db.ref('users/'+loggedUser+'/wallet').set(bal - betAmt);
-            
-            isFlying = true; multi = 1.0;
-            document.getElementById('multiplier').classList.remove('crashed-multi');
-            document.getElementById('avi-amt').disabled = true;
-            document.getElementById('start-avi').style.display = 'none';
-            document.getElementById('cashout-avi').style.display = 'block';
-            
-            // Random Crash Point (1.10x to 8.00x)
-            const crashAt = (Math.random()*7 + 1.1).toFixed(2);
-            const plane = document.getElementById('plane');
-            const multiDisplay = document.getElementById('multiplier');
-            const cashoutBtn = document.getElementById('can-win');
-
-            aviInt = setInterval(() => {
-                // Multiplier badhne ka logic
-                if (multi < 2) multi += 0.01;
-                else if (multi < 5) multi += 0.02;
-                else multi += 0.05;
-                
-                multiDisplay.innerText = multi.toFixed(2) + "x";
-                cashoutBtn.innerText = (betAmt * multi).toFixed(2);
-                
-                // Plane ka Tircha Udna (Graph Logic)
-                // Left se Right bhagega, aur Niche se Upar jayega
-                let leftPos = 10 + (multi * 35); // Horizontal speed
-                let bottomPos = 20 + (multi * 25); // Vertical speed
-                
-                // Screen ke bahar na jaye
-                if(leftPos < 420) plane.style.left = leftPos + "px";
-                if(bottomPos < 200) plane.style.bottom = bottomPos + "px";
-
-                // CRASH LOGIC
-                if(multi >= crashAt) {
-                    clearInterval(aviInt);
-                    isFlying = false;
-                    multiDisplay.innerText = crashAt + "x\nCRASHED!";
-                    multiDisplay.classList.add('crashed-multi');
-                    showNotify("Plane Crashed at " + crashAt + "x", 'red');
-                    
-                    // Reset Game after 3 seconds
-                    setTimeout(resetGame, 3000);
-                }
-            }, 100);
-        }
-
-        function cashOutAviator() {
-            if(!isFlying) return;
-            clearInterval(aviInt);
-            isFlying = false;
-            
-            const win = betAmt * multi;
-            const bal = parseFloat(document.getElementById('u-bal').innerText);
-            
-            db.ref('users/'+loggedUser+'/wallet').set(bal + win).then(() => {
-                showNotify("CASHED OUT! You Won ₹" + win.toFixed(2));
-                resetGame();
-            });
-        }
-
-        function resetGame() {
-            isFlying = false;
-            clearInterval(aviInt);
-            document.getElementById('multiplier').classList.remove('crashed-multi');
-            document.getElementById('multiplier').innerText = "1.00x";
-            document.getElementById('avi-amt').disabled = false;
-            document.getElementById('start-avi').style.display = 'block';
-            document.getElementById('cashout-avi').style.display = 'none';
-            document.getElementById('can-win').innerText = "0.00";
-            
-            // Plane back to start
-            const plane = document.getElementById('plane');
-            plane.style.left = "10px";
-            plane.style.bottom = "20px";
-        }
-
-        function userLogout() { localStorage.removeItem('p_user'); location.reload(); }
     </script>
+
 </body>
 </html>
