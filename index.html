@@ -3,259 +3,419 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Fast Mobile Auth</title>
+    <title>Pandya Bet - Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', Roboto, sans-serif;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
-            background: linear-gradient(135deg, #0f172a, #1e1b4b);
+            background-color: #0b1120;
             color: #ffffff;
+            padding-bottom: 75px; /* space for bottom nav */
+            overflow-x: hidden;
+        }
+
+        /* --- HEADER AREA --- */
+        header {
+            background: linear-gradient(to right, #0f172a, #1e1b4b);
+            padding: 15px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            border-bottom: 2px solid #22254b;
+            position: sticky;
+            top: 0;
+            z-index: 100;
         }
 
-        .auth-container {
-            background: rgba(30, 41, 59, 0.7);
-            padding: 35px;
-            border-radius: 16px;
-            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            width: 100%;
-            max-width: 400px;
-            text-align: center;
-            position: relative;
-        }
-
-        .logo-area h1 {
-            font-size: 2.5rem;
+        .logo h1 {
+            font-size: 1.6rem;
             font-weight: 800;
-            margin-bottom: 5px;
             background: linear-gradient(to right, #f59e0b, #e11d48);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
-        .logo-area p {
-            color: #94a3b8;
-            font-size: 0.9rem;
+        .wallet-box {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-weight: 700;
+            color: #f59e0b;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        /* --- NOTICE MARQUEE --- */
+        .notice-bar {
+            background: #172554;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 0.85rem;
+            color: #cbd5e1;
+        }
+
+        .notice-bar i { color: #f59e0b; }
+        
+        .marquee-container {
+            overflow: hidden;
+            white-space: nowrap;
+            width: 100%;
+        }
+
+        .marquee-container p {
+            display: inline-block;
+            animation: marquee 20s linear infinite;
+        }
+
+        @keyframes marquee {
+            0% { transform: translate3d(100%, 0, 0); }
+            100% { transform: translate3d(-100%, 0, 0); }
+        }
+
+        /* --- MAIN CONTAINER --- */
+        .container {
+            padding: 15px;
+            max-width: 500px; /* Mobile View Optimization */
+            margin: 0 auto;
+        }
+
+        /* --- CATEGORY TABS GRID --- */
+        .category-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .cat-card {
+            background: linear-gradient(135deg, #1e293b, #0f172a);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 15px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            height: 90px;
+            position: relative;
+            cursor: pointer;
+            overflow: hidden;
+            transition: transform 0.2s;
+        }
+
+        .cat-card:active { transform: scale(0.97); }
+
+        .cat-card.popular { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: #3b82f6;}
+        .cat-card.lottery { background: linear-gradient(135deg, #db2777, #b5179e); border-color: #ec4899;}
+
+        .cat-card h3 { font-size: 1.1rem; font-weight: 700; z-index: 2; }
+        
+        .cat-card i {
+            position: absolute;
+            right: 15px;
+            bottom: 12px;
+            font-size: 2.2rem;
+            opacity: 0.3;
+            color: #fff;
+        }
+
+        /* Sub Categories (3 Columns) */
+        .sub-cat-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
             margin-bottom: 25px;
         }
 
-        .form-box { display: none; }
-        .form-box.active { display: block; }
-
-        .input-group {
-            margin-bottom: 18px;
-            text-align: left;
-        }
-
-        .input-group label {
-            display: block;
-            margin-bottom: 6px;
-            color: #cbd5e1;
+        .sub-card {
+            background: #1e293b;
+            border-radius: 10px;
+            padding: 12px 5px;
+            text-align: center;
             font-size: 0.85rem;
             font-weight: 600;
-        }
-
-        .input-group input {
-            width: 100%;
-            padding: 12px 16px;
-            background: #0f172a;
             border: 1px solid #334155;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1rem;
-            transition: all 0.3s ease;
+        }
+        .sub-card i {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 6px;
+            color: #f59e0b;
         }
 
-        .input-group input:focus {
-            outline: none;
-            border-color: #f59e0b;
-            box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
-        }
-
-        .auth-btn {
-            width: 100%;
-            padding: 14px;
-            background: linear-gradient(to right, #f59e0b, #d97706);
-            border: none;
-            border-radius: 8px;
-            color: #0f172a;
-            font-size: 1rem;
+        /* --- SECTION HEADING --- */
+        .section-title {
+            font-size: 1.1rem;
             font-weight: 700;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .section-title i { color: #ef4444; }
+
+        /* --- GAMES LIST (RECOMMENDED) --- */
+        .games-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 25px;
+        }
+
+        .game-card {
+            background: #111827;
+            border: 1px solid #1f2937;
+            border-radius: 14px;
+            overflow: hidden;
+            position: relative;
             cursor: pointer;
-            text-transform: uppercase;
+        }
+
+        .game-banner {
+            height: 110px;
+            background: linear-gradient(45deg, #1e1b4b, #311042);
             display: flex;
             justify-content: center;
             align-items: center;
-            gap: 10px;
+            position: relative;
         }
 
-        /* Loading Spinner */
-        .spinner {
-            display: none;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #0f172a;
-            border-top: 3px solid transparent;
-            border-radius: 50%;
-            animation: spin 0.8s linear infinite;
+        /* Specific Game Colors for Premium Feel */
+        .aviator-bg { background: linear-gradient(135deg, #991b1b, #450a0a); }
+        .chicken-bg { background: linear-gradient(135deg, #ca8a04, #713f12); }
+        .vortex-bg { background: linear-gradient(135deg, #6b21a8, #3b0764); }
+        .jetx-bg { background: linear-gradient(135deg, #065f46, #022c22); }
+
+        .game-banner i {
+            font-size: 3rem;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
         }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+        .game-info {
+            padding: 10px;
+            background: #1f2937;
+            text-align: center;
         }
 
-        /* Simulated Push Notification */
-        .sms-notification {
+        .game-name {
+            font-weight: 700;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 5px;
+        }
+
+        .rtp-bar {
+            background: #111827;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            padding: 2px 6px;
+            color: #10b981;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        /* --- ADD TO DESKTOP BUTTON --- */
+        .add-desktop-btn {
+            background: linear-gradient(to right, #2563eb, #1d4ed8);
+            color: white;
+            width: 100%;
+            border: none;
+            padding: 12px;
+            border-radius: 25px;
+            font-weight: 700;
+            font-size: 0.95rem;
+            margin: 15px 0;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
+        }
+
+        /* --- BOTTOM NAVIGATION BAR --- */
+        .bottom-nav {
             position: fixed;
-            top: -100px;
+            bottom: 0;
             left: 50%;
             transform: translateX(-50%);
-            width: 90%;
-            max-width: 350px;
-            background: #1e293b;
-            border-left: 5px solid #f59e0b;
-            padding: 15px;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
-            z-index: 9999;
-            transition: top 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            color: #fff;
-            text-align: left;
+            width: 100%;
+            max-width: 500px;
+            background: #0f172a;
+            border-top: 1px solid #1e293b;
+            display: flex;
+            justify-content: space-around;
+            padding: 8px 0;
+            z-index: 999;
         }
 
-        .sms-notification.show { top: 20px; }
-        .sms-header { font-size: 0.75rem; color: #94a3b8; margin-bottom: 4px; font-weight: bold; display: flex; justify-content: space-between; }
+        .nav-item {
+            text-align: center;
+            color: #94a3b8;
+            text-decoration: none;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            flex: 1;
+        }
+
+        .nav-item.active { color: #f59e0b; }
+        .nav-item i { font-size: 1.3rem; }
+
+        /* Center Special Button */
+        .nav-item.center-btn {
+            position: relative;
+            top: -18px;
+            background: linear-gradient(to top, #f59e0b, #d97706);
+            color: #0f172a !important;
+            width: 58px;
+            height: 58px;
+            border-radius: 50%;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
+            border: 4px solid #0b1120;
+            flex: none;
+        }
+        .nav-item.center-btn i { font-size: 1.4rem; }
 
     </style>
 </head>
 <body>
 
-    <!-- सिम्युलेटेड असली SMS नोटिफिकेशन बॉक्स -->
-    <div id="smsPop" class="sms-notification">
-        <div class="sms-header">
-            <span>💬 MESSAGES (NOW)</span>
-            <span style="color:#f59e0b;">PANDYA_BET_SMS</span>
+    <header>
+        <div class="logo">
+            <h1>Pandya Bet</h1>
         </div>
-        <p style="font-size: 0.9rem;" id="smsText"></p>
+        <div class="wallet-box">
+            <i class="fa-solid fa-wallet"></i>
+            <span>₹<span id="balance">500.00</span></span>
+        </div>
+    </header>
+
+    <div class="notice-bar">
+        <i class="fa-solid fa-volume-high"></i>
+        <div class="marquee-container">
+            <p>Welcome to Pandya Bet! Secure deposit issues resolved. Send details directly to Pandya Bet self-service center for instant backup.</p>
+        </div>
     </div>
 
-    <div class="auth-container">
-        <div class="logo-area">
-            <h1>Pandya Bet</h1>
-            <p id="page-desc">Enter details to get fast mobile OTP</p>
+    <div class="container">
+
+        <div class="category-grid">
+            <div class="cat-card popular">
+                <h3>Popular</h3>
+                <i class="fa-solid fa-trophy"></i>
+            </div>
+            <div class="cat-card lottery">
+                <h3>Lottery</h3>
+                <i class="fa-solid fa-ticket"></i>
+            </div>
         </div>
 
-        <!-- STEP 1: MOBILE REGISTER -->
-        <div id="registerBox" class="form-box active">
-            <form onsubmit="sendInstantOTP(event)">
-                <div class="input-group">
-                    <label for="regUser">Username</label>
-                    <input type="text" id="regUser" placeholder="Choose username" required>
-                </div>
-                <div class="input-group">
-                    <label for="regMobile">Mobile Number</label>
-                    <input type="tel" id="regMobile" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" required>
-                </div>
-                <div class="input-group">
-                    <label for="regPass">Password</label>
-                    <input type="password" id="regPass" placeholder="Create password" required>
-                </div>
-
-                <button type="submit" id="submitBtn" class="auth-btn">
-                    <span id="btnText">GET MOBILE OTP</span>
-                    <div id="btnSpinner" class="spinner"></div>
-                </button>
-            </form>
+        <div class="sub-cat-grid">
+            <div class="sub-card"><i class="fa-solid fa-heart"></i>Casino</div>
+            <div class="sub-card"><i class="fa-solid fa-cubes"></i>Slots</div>
+            <div class="sub-card"><i class="fa-solid fa-baseball"></i>Sports</div>
+            <div class="sub-card"><i class="fa-solid fa-id-card"></i>Rummy</div>
+            <div class="sub-card"><i class="fa-solid fa-fish-fins"></i>Fishing</div>
+            <div class="sub-card"><i class="fa-solid fa-wand-magic-sparkles"></i>Original</div>
         </div>
 
-        <!-- STEP 2: VERIFY INPUT (बिना कहीं भेजे सीधे इसी पेज पर) -->
-        <div id="otpBox" class="form-box">
-            <form onsubmit="verifyInstantOTP(event)">
-                <div class="input-group">
-                    <label for="inputOtp">Enter 6-Digit OTP</label>
-                    <input type="text" id="inputOtp" maxlength="6" placeholder="Enter OTP" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
-                </div>
-                <button type="submit" class="auth-btn">VERIFY & REGISTER</button>
-            </form>
+        <div class="section-title">
+            <i class="fa-solid fa-fire"></i> Platform Recommendation
         </div>
+
+        <div class="games-grid">
+            <div class="game-card" onclick="playGame('Aviator')">
+                <div class="game-banner aviator-bg">
+                    <i class="fa-solid fa-plane-departure" style="color: #fca5a5;"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Aviator</div>
+                    <div class="rtp-bar">RTP 97.67%</div>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="playGame('Chicken Road 2')">
+                <div class="game-banner chicken-bg">
+                    <i class="fa-solid fa-egg" style="color: #fef08a;"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Chicken Road 2</div>
+                    <div class="rtp-bar">RTP 96.02%</div>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="playGame('Vortex')">
+                <div class="game-banner vortex-bg">
+                    <i class="fa-solid fa-tornado" style="color: #e9d5ff;"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">Vortex</div>
+                    <div class="rtp-bar">RTP 96.95%</div>
+                </div>
+            </div>
+
+            <div class="game-card" onclick="playGame('JetX')">
+                <div class="game-banner jetx-bg">
+                    <i class="fa-solid fa-jet-fighter" style="color: #a7f3d0;"></i>
+                </div>
+                <div class="game-info">
+                    <div class="game-name">JetX</div>
+                    <div class="rtp-bar">RTP 98.10%</div>
+                </div>
+            </div>
+        </div>
+
+        <button class="add-desktop-btn">
+            <i class="fa-solid fa-circle-down"></i> Add to Desktop
+        </button>
+
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" class="nav-item active">
+            <i class="fa-solid fa-house"></i>
+            <span>Home</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-calendar-check"></i>
+            <span>Activity</span>
+        </a>
+        <a href="#" class="nav-item center-btn" onclick="openPromo()">
+            <i class="fa-solid fa-coins"></i>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-gift"></i>
+            <span>Promotion</span>
+        </a>
+        <a href="#" class="nav-item">
+            <i class="fa-solid fa-user"></i>
+            <span>Account</span>
+        </a>
     </div>
 
     <script>
-        let currentOTP = null;
-        let userDataCache = null;
-
-        function sendInstantOTP(event) {
-            event.preventDefault();
-
-            const username = document.getElementById('regUser').value.trim();
-            const mobile = document.getElementById('regMobile').value.trim();
-            const password = document.getElementById('regPass').value;
-
-            userDataCache = { username, mobile, password };
-
-            // बटन पर एनीमेशन चालू करें (असली गेटवे जैसा फील देने के लिए)
-            const btnText = document.getElementById('btnText');
-            const btnSpinner = document.getElementById('btnSpinner');
-            const submitBtn = document.getElementById('submitBtn');
-
-            btnText.innerText = "SENDING SMS VIA NETWORK...";
-            btnSpinner.style.display = "block";
-            submitBtn.style.disabled = true;
-
-            // 1.5 सेकंड का नकली डिले ताकि लगे कि नेटवर्क काम कर रहा है
-            setTimeout(() => {
-                // 6 डिजिट कोड जनरेट करें
-                currentOTP = Math.floor(100000 + Math.random() * 900000).toString();
-
-                // नोटिफिकेशन शो करें (जैसे असली मोबाइल मैसेज आता है ऊपर से)
-                const smsPop = document.getElementById('smsPop');
-                document.getElementById('smsText').innerHTML = `Your registration OTP for Pandya Bet is <b>${currentOTP}</b>. Do not share this code with anyone.`;
-                smsPop.classList.add('show');
-
-                // अगर मोबाइल है तो वाइब्रेट करे
-                if (navigator.vibrate) { navigator.vibrate(200); }
-
-                // 4 सेकंड बाद नोटिफिकेशन वापस छुपा दें
-                setTimeout(() => { smsPop.classList.remove('show'); }, 5000);
-
-                // फॉर्म बदलें
-                btnSpinner.style.display = "none";
-                document.getElementById('registerBox').classList.remove('active');
-                document.getElementById('otpBox').classList.add('active');
-                document.getElementById('page-desc').innerText = `Enter the verification code sent to +91 ${mobile}`;
-
-            }, 1500);
+        // गेम क्लिक होने पर फंक्शन
+        function playGame(gameName) {
+            alert("🎯 Launching " + gameName + "... Loading Server Assets!");
+            // यहाँ आप गेम का म3यू या आईफ्रेम लिंक लोड कर सकते हैं
         }
 
-        function verifyInstantOTP(event) {
-            event.preventDefault();
-            const enteredOtp = document.getElementById('inputOtp').value.trim();
-
-            if (enteredOtp === currentOTP) {
-                let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-                users.push(userDataCache);
-                localStorage.setItem('pandya_users', JSON.stringify(users));
-
-                alert("🎉 Mobile Verified Successfully! Account Created.");
-                // यहाँ आप यूज़र को डायरेक्ट अंदर गेम वाले पेज पर भेज सकते हैं:
-                // window.location.href = "dashboard.html";
-            } else {
-                alert("❌ Incorrect OTP! Please try again.");
-            }
+        function openPromo() {
+            alert("🎁 Claim your Daily Bonus ₹500!");
         }
     </script>
 </body>
