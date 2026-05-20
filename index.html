@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Auth</title>
+    <title>Pandya Bet - Verification System</title>
     <style>
         * {
             margin: 0;
@@ -52,7 +52,6 @@
             margin-bottom: 25px;
         }
 
-        /* फॉर्म छुपाने और दिखाने के लिए क्लास */
         .form-box {
             display: none;
         }
@@ -99,19 +98,6 @@
             font-size: 0.85rem;
         }
 
-        .remember-me {
-            display: flex;
-            align-items: center;
-            gap: 5px;
-            color: #cbd5e1;
-            cursor: pointer;
-        }
-
-        .forgot-pass {
-            color: #f59e0b;
-            text-decoration: none;
-        }
-
         .auth-btn {
             width: 100%;
             padding: 14px;
@@ -150,6 +136,17 @@
         .switch-text a:hover {
             text-decoration: underline;
         }
+
+        /* Alert/Notice for generated OTP */
+        .otp-alert {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px dashed #f59e0b;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            font-size: 0.85rem;
+            color: #f59e0b;
+        }
     </style>
 </head>
 <body>
@@ -174,10 +171,7 @@
                 </div>
 
                 <div class="actions">
-                    <label class="remember-me">
-                        <input type="checkbox"> Remember me
-                    </label>
-                    <a href="#" class="forgot-pass">Forgot Password?</a>
+                    <a href="#" class="forgot-pass" style="color: #f59e0b; text-decoration:none;">Forgot Password?</a>
                 </div>
 
                 <button type="submit" class="auth-btn">LOG IN</button>
@@ -189,7 +183,7 @@
 
         <!-- ================= REGISTRATION FORM ================= -->
         <div id="registerBox" class="form-box">
-            <form onsubmit="handleRegister(event)">
+            <form onsubmit="sendOTP(event)">
                 <div class="input-group">
                     <label for="regUser">Create Username</label>
                     <input type="text" id="regUser" placeholder="Choose a unique username" required>
@@ -197,7 +191,7 @@
 
                 <div class="input-group">
                     <label for="regMobile">Mobile Number</label>
-                    <input type="tel" id="regMobile" placeholder="Enter mobile number" required>
+                    <input type="tel" id="regMobile" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" required>
                 </div>
 
                 <div class="input-group">
@@ -205,44 +199,71 @@
                     <input type="password" id="regPass" placeholder="Enter a strong password" required>
                 </div>
 
-                <button type="submit" class="auth-btn">REGISTER NOW</button>
+                <button type="submit" class="auth-btn">SEND OTP</button>
             </form>
             <div class="switch-text">
                 Already have an account? <a onclick="toggleForm('login')">Login Here</a>
             </div>
         </div>
 
+        <!-- ================= OTP VERIFICATION FORM ================= -->
+        <div id="otpBox" class="form-box">
+            <div class="otp-alert" id="otpDisplay">
+                <!-- यहाँ कोड के ज़रिए जनरेटेड OTP दिखेगा -->
+            </div>
+            <form onsubmit="verifyOTP(event)">
+                <div class="input-group">
+                    <label for="inputOtp">Enter 4-Digit OTP</label>
+                    <input type="text" id="inputOtp" maxlength="4" placeholder="Enter OTP" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+                </div>
+
+                <button type="submit" class="auth-btn">VERIFY & REGISTER</button>
+            </form>
+            <div class="switch-text">
+                Wrong number? <a onclick="toggleForm('register')">Go Back</a>
+            </div>
+        </div>
+
     </div>
 
     <script>
-        // फॉर्म बदलने का फंक्शन (Login <-> Register)
+        // टेम्परेरी डेटा होल्ड करने के लिए वेरिएबल्स
+        let tempUserData = null;
+        let generatedOTP = null;
+
         function toggleForm(formType) {
             const loginBox = document.getElementById('loginBox');
             const registerBox = document.getElementById('registerBox');
+            const otpBox = document.getElementById('otpBox');
             const pageDesc = document.getElementById('page-desc');
 
+            // सबको पहले छुपाएं
+            loginBox.classList.remove('active');
+            registerBox.classList.remove('active');
+            otpBox.classList.remove('active');
+
             if (formType === 'register') {
-                loginBox.classList.remove('active');
                 registerBox.classList.add('active');
                 pageDesc.innerText = "Join us today! Create your betting account.";
+            } else if (formType === 'otp') {
+                otpBox.classList.add('active');
+                pageDesc.innerText = "Enter the security code sent to your phone.";
             } else {
-                registerBox.classList.remove('active');
                 loginBox.classList.add('active');
                 pageDesc.innerText = "Welcome back! Please login to your account.";
             }
         }
 
-        // रजिस्ट्रेशन हैंडल करने का फंक्शन
-        function handleRegister(event) {
+        // स्टेप 1: रजिस्टर सबमिट होने पर OTP जनरेट करना
+        function sendOTP(event) {
             event.preventDefault();
 
             const username = document.getElementById('regUser').value.trim();
             const mobile = document.getElementById('regMobile').value.trim();
             const password = document.getElementById('regPass').value;
 
-            // पहले से कोई यूजर इस नाम से है या नहीं, चेक करने के लिए
+            // यूजर चेक करें
             let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-
             const userExists = users.some(u => u.username === username || u.mobile === mobile);
 
             if (userExists) {
@@ -250,47 +271,59 @@
                 return;
             }
 
-            // नया यूजर डेटा ऑब्जेक्ट
-            const newUser = {
-                username: username,
-                mobile: mobile,
-                password: password,
-                balance: 0 // शुरुआत में 0 बैलेंस रख सकते हैं
-            };
+            // यूजर का डेटा टेम्परेरी सेव करें
+            tempUserData = { username, mobile, password, balance: 0 };
 
-            // डेटाबेस (LocalStorage) में सेव करें
-            users.push(newUser);
-            localStorage.setItem('pandya_users', JSON.stringify(users));
+            // 4 डिजिट का रैंडम OTP बनाएं
+            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
 
-            alert("Registration Successful! Now you can Login.");
-            
-            // फॉर्म साफ़ करें और लॉगिन स्क्रीन पर भेजें
-            event.target.reset();
-            toggleForm('login');
+            // OTP बॉक्स पर दिखाएं (ताकि टेस्टिंग में आसानी हो)
+            document.getElementById('otpDisplay').innerHTML = `💬 SMS Sent to <b>+91 ${mobile}</b><br>Your OTP code is: <b style="font-size:1.2rem; color:#fff;">${generatedOTP}</b>`;
+
+            // OTP स्क्रीन खोलें
+            toggleForm('otp');
         }
 
-        // लॉगिन हैंडल करने का फंक्शन
+        // स्टेप 2: OTP वेरीफाई करना और फाइनल रजिस्ट्रेशन
+        function verifyOTP(event) {
+            event.preventDefault();
+            const userEnteredOtp = document.getElementById('inputOtp').value.trim();
+
+            if (userEnteredOtp === generatedOTP) {
+                let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
+                
+                // फाइनल सेव
+                users.push(tempUserData);
+                localStorage.setItem('pandya_users', JSON.stringify(users));
+
+                alert("✅ Mobile Verified & Registration Successful!");
+                
+                // साफ़ करें और लॉगिन पर भेजें
+                document.getElementById('inputOtp').value = '';
+                tempUserData = null;
+                generatedOTP = null;
+                toggleForm('login');
+            } else {
+                alert("❌ Invalid OTP! Please check the code again.");
+            }
+        }
+
+        // लॉगिन हैंडलर
         function handleLogin(event) {
             event.preventDefault();
-
             const inputUser = document.getElementById('loginUser').value.trim();
             const inputPass = document.getElementById('loginPass').value;
 
-            // सेव किया हुआ डेटा निकालें
             let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-
-            // यूजर मैच करें (चाहे यूजरनेम से लॉग इन करे या मोबाइल नंबर से)
             const matchedUser = users.find(u => 
                 (u.username === inputUser || u.mobile === inputUser) && u.password === inputPass
             );
 
             if (matchedUser) {
-                alert("Login Successful! Welcome, " + matchedUser.username);
-                
-                // यहाँ आप यूजर को डैशबोर्ड या गेमिंग पेज पर भेज सकते हैं
-                // window.location.href = "dashboard.html"; 
+                alert("🎉 Login Successful! Welcome, " + matchedUser.username);
+                // window.location.href = "dashboard.html"; // यहाँ अपने अगले पेज का नाम डाल सकते हो
             } else {
-                alert("Invalid Username/Mobile or Password! Please try again.");
+                alert("❌ Invalid Details!");
             }
         }
     </script>
