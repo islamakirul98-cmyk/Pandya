@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Verification System</title>
+    <title>Pandya Bet - Multi OTP Verification</title>
     <style>
         * {
             margin: 0;
@@ -28,7 +28,6 @@
             border-radius: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             backdrop-filter: blur(8px);
-            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.1);
             width: 100%;
             max-width: 400px;
@@ -52,13 +51,8 @@
             margin-bottom: 25px;
         }
 
-        .form-box {
-            display: none;
-        }
-
-        .form-box.active {
-            display: block;
-        }
+        .form-box { display: none; }
+        .form-box.active { display: block; }
 
         .input-group {
             margin-bottom: 18px;
@@ -90,14 +84,6 @@
             box-shadow: 0 0 8px rgba(245, 158, 11, 0.4);
         }
 
-        .actions {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            font-size: 0.85rem;
-        }
-
         .auth-btn {
             width: 100%;
             padding: 14px;
@@ -108,44 +94,46 @@
             font-size: 1rem;
             font-weight: 700;
             cursor: pointer;
-            transition: transform 0.1s, opacity 0.2s;
             text-transform: uppercase;
         }
 
-        .auth-btn:hover {
-            opacity: 0.95;
+        /* Verification Buttons Styling */
+        .otp-options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 20px;
         }
 
-        .auth-btn:active {
-            transform: scale(0.98);
-        }
-
-        .switch-text {
-            margin-top: 20px;
-            font-size: 0.9rem;
-            color: #94a3b8;
-        }
-
-        .switch-text a {
-            color: #f59e0b;
+        .verify-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            width: 100%;
+            padding: 12px;
+            color: white;
             text-decoration: none;
+            border-radius: 8px;
             font-weight: 600;
-            cursor: pointer;
+            font-size: 0.95rem;
+            transition: opacity 0.2s;
         }
 
-        .switch-text a:hover {
-            text-decoration: underline;
-        }
+        .verify-btn:hover { opacity: 0.9; }
 
-        /* Alert/Notice for generated OTP */
-        .otp-alert {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px dashed #f59e0b;
-            padding: 10px;
+        .whatsapp-btn { background: #25D366; color: #fff; }
+        .telegram-btn { background: #0088cc; color: #fff; }
+
+        .otp-notice {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px dashed rgba(255, 255, 255, 0.2);
+            padding: 12px;
             border-radius: 8px;
             margin-bottom: 15px;
             font-size: 0.85rem;
-            color: #f59e0b;
+            color: #cbd5e1;
+            line-height: 1.4;
         }
     </style>
 </head>
@@ -154,179 +142,102 @@
     <div class="auth-container">
         <div class="logo-area">
             <h1>Pandya Bet</h1>
-            <p id="page-desc">Welcome back! Please login to your account.</p>
+            <p id="page-desc">Register with Free Multi-OTP System</p>
         </div>
 
-        <!-- ================= LOGIN FORM ================= -->
-        <div id="loginBox" class="form-box active">
-            <form onsubmit="handleLogin(event)">
+        <!-- STEP 1: REGISTRATION DETAILS -->
+        <div id="registerBox" class="form-box active">
+            <form onsubmit="initiateOTP(event)">
                 <div class="input-group">
-                    <label for="loginUser">Username / Mobile</label>
-                    <input type="text" id="loginUser" placeholder="Enter username or mobile" required>
+                    <label for="regUser">Username</label>
+                    <input type="text" id="regUser" placeholder="Choose username" required>
                 </div>
-
-                <div class="input-group">
-                    <label for="loginPass">Password</label>
-                    <input type="password" id="loginPass" placeholder="Enter password" required>
-                </div>
-
-                <div class="actions">
-                    <a href="#" class="forgot-pass" style="color: #f59e0b; text-decoration:none;">Forgot Password?</a>
-                </div>
-
-                <button type="submit" class="auth-btn">LOG IN</button>
-            </form>
-            <div class="switch-text">
-                Don't have an account? <a onclick="toggleForm('register')">Register Now</a>
-            </div>
-        </div>
-
-        <!-- ================= REGISTRATION FORM ================= -->
-        <div id="registerBox" class="form-box">
-            <form onsubmit="sendOTP(event)">
-                <div class="input-group">
-                    <label for="regUser">Create Username</label>
-                    <input type="text" id="regUser" placeholder="Choose a unique username" required>
-                </div>
-
                 <div class="input-group">
                     <label for="regMobile">Mobile Number</label>
                     <input type="tel" id="regMobile" pattern="[0-9]{10}" placeholder="Enter 10-digit mobile number" required>
                 </div>
-
                 <div class="input-group">
-                    <label for="regPass">Create Password</label>
-                    <input type="password" id="regPass" placeholder="Enter a strong password" required>
+                    <label for="regPass">Password</label>
+                    <input type="password" id="regPass" placeholder="Create password" required>
                 </div>
 
-                <button type="submit" class="auth-btn">SEND OTP</button>
+                <button type="submit" class="auth-btn">CONTINUE TO VERIFY</button>
             </form>
-            <div class="switch-text">
-                Already have an account? <a onclick="toggleForm('login')">Login Here</a>
-            </div>
         </div>
 
-        <!-- ================= OTP VERIFICATION FORM ================= -->
+        <!-- STEP 2: MULTI-OTP SELECTION & INPUT -->
         <div id="otpBox" class="form-box">
-            <div class="otp-alert" id="otpDisplay">
-                <!-- यहाँ कोड के ज़रिए जनरेटेड OTP दिखेगा -->
+            <div class="otp-notice">
+                ⚠️ मुफ़्त कोड के लिए नीचे WhatsApp या Telegram में से किसी एक पर क्लिक करें:
             </div>
+            
+            <div class="otp-options-container">
+                <!-- WhatsApp Button (यहाँ अपना व्हाट्सऐप नंबर डाल सकते हैं) -->
+                <a href="#" id="waLink" target="_blank" class="verify-btn whatsapp-btn">
+                     🟢 GET OTP ON WHATSAPP
+                </a>
+
+                <!-- Telegram Button -->
+                <a href="https://t.me/BotFather" target="_blank" class="verify-btn telegram-btn">
+                     🔵 GET OTP ON TELEGRAM
+                </a>
+            </div>
+
             <form onsubmit="verifyOTP(event)">
                 <div class="input-group">
-                    <label for="inputOtp">Enter 4-Digit OTP</label>
-                    <input type="text" id="inputOtp" maxlength="4" placeholder="Enter OTP" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
+                    <label for="inputOtp">Enter 6-Digit OTP</label>
+                    <input type="text" id="inputOtp" maxlength="6" placeholder="Enter OTP" required style="text-align: center; font-size: 1.5rem; letter-spacing: 5px;">
                 </div>
-
                 <button type="submit" class="auth-btn">VERIFY & REGISTER</button>
             </form>
-            <div class="switch-text">
-                Wrong number? <a onclick="toggleForm('register')">Go Back</a>
-            </div>
         </div>
-
     </div>
 
     <script>
-        // टेम्परेरी डेटा होल्ड करने के लिए वेरिएबल्स
-        let tempUserData = null;
         let generatedOTP = null;
+        let tempUserData = null;
 
-        function toggleForm(formType) {
-            const loginBox = document.getElementById('loginBox');
-            const registerBox = document.getElementById('registerBox');
-            const otpBox = document.getElementById('otpBox');
-            const pageDesc = document.getElementById('page-desc');
-
-            // सबको पहले छुपाएं
-            loginBox.classList.remove('active');
-            registerBox.classList.remove('active');
-            otpBox.classList.remove('active');
-
-            if (formType === 'register') {
-                registerBox.classList.add('active');
-                pageDesc.innerText = "Join us today! Create your betting account.";
-            } else if (formType === 'otp') {
-                otpBox.classList.add('active');
-                pageDesc.innerText = "Enter the security code sent to your phone.";
-            } else {
-                loginBox.classList.add('active');
-                pageDesc.innerText = "Welcome back! Please login to your account.";
-            }
-        }
-
-        // स्टेप 1: रजिस्टर सबमिट होने पर OTP जनरेट करना
-        function sendOTP(event) {
+        function initiateOTP(event) {
             event.preventDefault();
 
             const username = document.getElementById('regUser').value.trim();
             const mobile = document.getElementById('regMobile').value.trim();
             const password = document.getElementById('regPass').value;
 
-            // यूजर चेक करें
-            let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-            const userExists = users.some(u => u.username === username || u.mobile === mobile);
+            // 6-डिजिट का कोड जनरेट करें
+            generatedOTP = Math.floor(100000 + Math.random() * 900000).toString();
+            tempUserData = { username, mobile, password };
 
-            if (userExists) {
-                alert("This Username or Mobile number is already registered!");
-                return;
-            }
+            // 🟢 WhatsApp Link Setup: जब यूज़र क्लिक करेगा तो सीधे आपके नंबर पर उसका कोड मैसेज सेंड होने के लिए तैयार रहेगा
+            // यहाँ '919999999999' की जगह अपना खुद का व्हाट्सएप नंबर डाल देना (कंट्री कोड 91 के साथ)
+            const adminWhatsAppNumber = "919999999999"; 
+            const message = encodeURIComponent(`Hello Admin, I am registering on Pandya Bet. Please give me my verification OTP code for username: ${username}`);
+            document.getElementById('waLink').href = `https://wa.me/${adminWhatsAppNumber}?text=${message}`;
 
-            // यूजर का डेटा टेम्परेरी सेव करें
-            tempUserData = { username, mobile, password, balance: 0 };
+            // टेस्टिंग के लिए स्क्रीन पर भी अलर्ट दिखा देते हैं
+            alert("वेरिफिकेशन लिंक तैयार! टेस्टिंग के लिए आपका OTP कोड है: " + generatedOTP);
 
-            // 4 डिजिट का रैंडम OTP बनाएं
-            generatedOTP = Math.floor(1000 + Math.random() * 9000).toString();
-
-            // OTP बॉक्स पर दिखाएं (ताकि टेस्टिंग में आसानी हो)
-            document.getElementById('otpDisplay').innerHTML = `💬 SMS Sent to <b>+91 ${mobile}</b><br>Your OTP code is: <b style="font-size:1.2rem; color:#fff;">${generatedOTP}</b>`;
-
-            // OTP स्क्रीन खोलें
-            toggleForm('otp');
+            // स्क्रीन बदलें
+            document.getElementById('registerBox').classList.remove('active');
+            document.getElementById('otpBox').classList.add('active');
+            document.getElementById('page-desc').innerText = "Verify via WhatsApp or Telegram";
         }
 
-        // स्टेप 2: OTP वेरीफाई करना और फाइनल रजिस्ट्रेशन
         function verifyOTP(event) {
             event.preventDefault();
-            const userEnteredOtp = document.getElementById('inputOtp').value.trim();
+            const userOtp = document.getElementById('inputOtp').value.trim();
 
-            if (userEnteredOtp === generatedOTP) {
+            if (userOtp === generatedOTP) {
                 let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-                
-                // फाइनल सेव
                 users.push(tempUserData);
                 localStorage.setItem('pandya_users', JSON.stringify(users));
 
-                alert("✅ Mobile Verified & Registration Successful!");
-                
-                // साफ़ करें और लॉगिन पर भेजें
-                document.getElementById('inputOtp').value = '';
-                tempUserData = null;
-                generatedOTP = null;
-                toggleForm('login');
+                alert("🎉 Registration Successful! Welcome to Pandya Bet.");
+                // window.location.href = "dashboard.html"; // लॉगिन के बाद यहाँ भेजें
             } else {
-                alert("❌ Invalid OTP! Please check the code again.");
-            }
-        }
-
-        // लॉगिन हैंडलर
-        function handleLogin(event) {
-            event.preventDefault();
-            const inputUser = document.getElementById('loginUser').value.trim();
-            const inputPass = document.getElementById('loginPass').value;
-
-            let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
-            const matchedUser = users.find(u => 
-                (u.username === inputUser || u.mobile === inputUser) && u.password === inputPass
-            );
-
-            if (matchedUser) {
-                alert("🎉 Login Successful! Welcome, " + matchedUser.username);
-                // window.location.href = "dashboard.html"; // यहाँ अपने अगले पेज का नाम डाल सकते हो
-            } else {
-                alert("❌ Invalid Details!");
+                alert("❌ Wrong OTP! Please check the code again.");
             }
         }
     </script>
-
 </body>
 </html>
