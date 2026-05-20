@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Login</title>
+    <title>Pandya Bet - Auth</title>
     <style>
         * {
             margin: 0;
@@ -22,9 +22,9 @@
             overflow: hidden;
         }
 
-        .login-container {
+        .auth-container {
             background: rgba(30, 41, 59, 0.7);
-            padding: 40px;
+            padding: 35px;
             border-radius: 16px;
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
             backdrop-filter: blur(8px);
@@ -38,7 +38,7 @@
         .logo-area h1 {
             font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             background: linear-gradient(to right, #f59e0b, #e11d48);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
@@ -49,17 +49,26 @@
         .logo-area p {
             color: #94a3b8;
             font-size: 0.9rem;
-            margin-bottom: 30px;
+            margin-bottom: 25px;
+        }
+
+        /* फॉर्म छुपाने और दिखाने के लिए क्लास */
+        .form-box {
+            display: none;
+        }
+
+        .form-box.active {
+            display: block;
         }
 
         .input-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
             text-align: left;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
             color: #cbd5e1;
             font-size: 0.85rem;
             font-weight: 600;
@@ -86,7 +95,7 @@
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 25px;
+            margin-bottom: 20px;
             font-size: 0.85rem;
         }
 
@@ -101,15 +110,9 @@
         .forgot-pass {
             color: #f59e0b;
             text-decoration: none;
-            transition: color 0.2s;
         }
 
-        .forgot-pass:hover {
-            color: #e11d48;
-            text-decoration: underline;
-        }
-
-        .login-btn {
+        .auth-btn {
             width: 100%;
             padding: 14px;
             background: linear-gradient(to right, #f59e0b, #d97706);
@@ -120,77 +123,175 @@
             font-weight: 700;
             cursor: pointer;
             transition: transform 0.1s, opacity 0.2s;
+            text-transform: uppercase;
         }
 
-        .login-btn:hover {
+        .auth-btn:hover {
             opacity: 0.95;
         }
 
-        .login-btn:active {
+        .auth-btn:active {
             transform: scale(0.98);
         }
 
-        .register-link {
-            margin-top: 25px;
+        .switch-text {
+            margin-top: 20px;
             font-size: 0.9rem;
             color: #94a3b8;
         }
 
-        .register-link a {
+        .switch-text a {
             color: #f59e0b;
             text-decoration: none;
             font-weight: 600;
+            cursor: pointer;
         }
 
-        .register-link a:hover {
+        .switch-text a:hover {
             text-decoration: underline;
         }
     </style>
 </head>
 <body>
 
-    <div class="login-container">
+    <div class="auth-container">
         <div class="logo-area">
             <h1>Pandya Bet</h1>
-            <p>Welcome back! Please login to your account.</p>
+            <p id="page-desc">Welcome back! Please login to your account.</p>
         </div>
 
-        <form id="loginForm" onsubmit="handleLogin(event)">
-            <div class="input-group">
-                <label for="username">Username / Phone Number</label>
-                <input type="text" id="username" placeholder="Enter username or mobile" required>
+        <!-- ================= LOGIN FORM ================= -->
+        <div id="loginBox" class="form-box active">
+            <form onsubmit="handleLogin(event)">
+                <div class="input-group">
+                    <label for="loginUser">Username / Mobile</label>
+                    <input type="text" id="loginUser" placeholder="Enter username or mobile" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="loginPass">Password</label>
+                    <input type="password" id="loginPass" placeholder="Enter password" required>
+                </div>
+
+                <div class="actions">
+                    <label class="remember-me">
+                        <input type="checkbox"> Remember me
+                    </label>
+                    <a href="#" class="forgot-pass">Forgot Password?</a>
+                </div>
+
+                <button type="submit" class="auth-btn">LOG IN</button>
+            </form>
+            <div class="switch-text">
+                Don't have an account? <a onclick="toggleForm('register')">Register Now</a>
             </div>
-
-            <div class="input-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" placeholder="Enter your password" required>
-            </div>
-
-            <div class="actions">
-                <label class="remember-me">
-                    <input type="checkbox" id="remember"> Remember me
-                </label>
-                <a href="#" class="forgot-pass">Forgot Password?</a>
-            </div>
-
-            <button type="submit" class="login-btn">LOG IN</button>
-        </form>
-
-        <div class="register-link">
-            Don't have an account? <a href="#">Register Now</a>
         </div>
+
+        <!-- ================= REGISTRATION FORM ================= -->
+        <div id="registerBox" class="form-box">
+            <form onsubmit="handleRegister(event)">
+                <div class="input-group">
+                    <label for="regUser">Create Username</label>
+                    <input type="text" id="regUser" placeholder="Choose a unique username" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="regMobile">Mobile Number</label>
+                    <input type="tel" id="regMobile" placeholder="Enter mobile number" required>
+                </div>
+
+                <div class="input-group">
+                    <label for="regPass">Create Password</label>
+                    <input type="password" id="regPass" placeholder="Enter a strong password" required>
+                </div>
+
+                <button type="submit" class="auth-btn">REGISTER NOW</button>
+            </form>
+            <div class="switch-text">
+                Already have an account? <a onclick="toggleForm('login')">Login Here</a>
+            </div>
+        </div>
+
     </div>
 
     <script>
+        // फॉर्म बदलने का फंक्शन (Login <-> Register)
+        function toggleForm(formType) {
+            const loginBox = document.getElementById('loginBox');
+            const registerBox = document.getElementById('registerBox');
+            const pageDesc = document.getElementById('page-desc');
+
+            if (formType === 'register') {
+                loginBox.classList.remove('active');
+                registerBox.classList.add('active');
+                pageDesc.innerText = "Join us today! Create your betting account.";
+            } else {
+                registerBox.classList.remove('active');
+                loginBox.classList.add('active');
+                pageDesc.innerText = "Welcome back! Please login to your account.";
+            }
+        }
+
+        // रजिस्ट्रेशन हैंडल करने का फंक्शन
+        function handleRegister(event) {
+            event.preventDefault();
+
+            const username = document.getElementById('regUser').value.trim();
+            const mobile = document.getElementById('regMobile').value.trim();
+            const password = document.getElementById('regPass').value;
+
+            // पहले से कोई यूजर इस नाम से है या नहीं, चेक करने के लिए
+            let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
+
+            const userExists = users.some(u => u.username === username || u.mobile === mobile);
+
+            if (userExists) {
+                alert("This Username or Mobile number is already registered!");
+                return;
+            }
+
+            // नया यूजर डेटा ऑब्जेक्ट
+            const newUser = {
+                username: username,
+                mobile: mobile,
+                password: password,
+                balance: 0 // शुरुआत में 0 बैलेंस रख सकते हैं
+            };
+
+            // डेटाबेस (LocalStorage) में सेव करें
+            users.push(newUser);
+            localStorage.setItem('pandya_users', JSON.stringify(users));
+
+            alert("Registration Successful! Now you can Login.");
+            
+            // फॉर्म साफ़ करें और लॉगिन स्क्रीन पर भेजें
+            event.target.reset();
+            toggleForm('login');
+        }
+
+        // लॉगिन हैंडल करने का फंक्शन
         function handleLogin(event) {
             event.preventDefault();
-            
-            const user = document.getElementById('username').value;
-            const pass = document.getElementById('password').value;
 
-            // यहाँ आप अपना बैकएंड या वैलिडेशन लॉजिक जोड़ सकते हैं
-            console.log("Logging in with:", user);
-            alert("Login function triggered for user: " + user);
+            const inputUser = document.getElementById('loginUser').value.trim();
+            const inputPass = document.getElementById('loginPass').value;
+
+            // सेव किया हुआ डेटा निकालें
+            let users = JSON.parse(localStorage.getItem('pandya_users')) || [];
+
+            // यूजर मैच करें (चाहे यूजरनेम से लॉग इन करे या मोबाइल नंबर से)
+            const matchedUser = users.find(u => 
+                (u.username === inputUser || u.mobile === inputUser) && u.password === inputPass
+            );
+
+            if (matchedUser) {
+                alert("Login Successful! Welcome, " + matchedUser.username);
+                
+                // यहाँ आप यूजर को डैशबोर्ड या गेमिंग पेज पर भेज सकते हैं
+                // window.location.href = "dashboard.html"; 
+            } else {
+                alert("Invalid Username/Mobile or Password! Please try again.");
+            }
         }
     </script>
 
