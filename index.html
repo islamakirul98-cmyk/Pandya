@@ -1,422 +1,138 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Pandya Bet - Dashboard</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            -webkit-tap-highlight-color: transparent;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Next Level Live Icon</title>
+  <style>
+    /* Dark Background taaki neon icons ekdum solid chamke */
+    body {
+      background-color: #0b0c10;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      gap: 30px;
+      flex-direction: column;
+      font-family: 'Arial Black', sans-serif;
+    }
 
-        body {
-            background-color: #0b1120;
-            color: #ffffff;
-            padding-bottom: 75px; /* space for bottom nav */
-            overflow-x: hidden;
-        }
+    /* --- NEXT LEVEL LIVE BADGE --- */
+    .next-level-live {
+      display: flex;
+      align-items: center;
+      background: linear-gradient(135deg, #1f1f2e, #14141f);
+      padding: 10px 22px;
+      border-radius: 12px;
+      border: 2px solid #ff0055;
+      box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
+      position: relative;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
 
-        /* --- HEADER AREA --- */
-        header {
-            background: linear-gradient(to right, #0f172a, #1e1b4b);
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 2px solid #22254b;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-        }
+    /* Glow wave jo pure icon ke piche chalegi */
+    .next-level-live::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(255, 0, 85, 0.15) 0%, transparent 70%);
+      animation: rotateGlow 4s linear infinite;
+    }
 
-        .logo h1 {
-            font-size: 1.6rem;
-            font-weight: 800;
-            background: linear-gradient(to right, #f59e0b, #e11d48);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
+    /* Red Dot with Wave Animation */
+    .live-dot-container {
+      position: relative;
+      width: 14px;
+      height: 14px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
 
-        .wallet-box {
-            background: rgba(245, 158, 11, 0.1);
-            border: 1px solid #f59e0b;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-weight: 700;
-            color: #f59e0b;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
+    .main-dot {
+      width: 12px;
+      height: 12px;
+      background-color: #ff0055;
+      border-radius: 50%;
+      box-shadow: 0 0 10px #ff0055;
+      z-index: 2;
+    }
 
-        /* --- NOTICE MARQUEE --- */
-        .notice-bar {
-            background: #172554;
-            padding: 8px 12px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-size: 0.85rem;
-            color: #cbd5e1;
-        }
+    .pulse-wave {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background-color: #ff0055;
+      border-radius: 50%;
+      z-index: 1;
+      animation: heavyPulse 1.5s infinite ease-out;
+    }
 
-        .notice-bar i { color: #f59e0b; }
-        
-        .marquee-container {
-            overflow: hidden;
-            white-space: nowrap;
-            width: 100%;
-        }
+    /* Neon Text Style */
+    .live-text {
+      color: #ffffff;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 2px;
+      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 15px #ff0055;
+      z-index: 2;
+      animation: textBlink 2s infinite alternate;
+    }
 
-        .marquee-container p {
-            display: inline-block;
-            animation: marquee 20s linear infinite;
-        }
+    /* --- ANIMATIONS --- */
+    @keyframes heavyPulse {
+      0% {
+        transform: scale(1);
+        opacity: 0.8;
+      }
+      100% {
+        transform: scale(3);
+        opacity: 0;
+      }
+    }
 
-        @keyframes marquee {
-            0% { transform: translate3d(100%, 0, 0); }
-            100% { transform: translate3d(-100%, 0, 0); }
-        }
+    @keyframes textBlink {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
+    }
 
-        /* --- MAIN CONTAINER --- */
-        .container {
-            padding: 15px;
-            max-width: 500px; /* Mobile View Optimization */
-            margin: 0 auto;
-        }
+    @keyframes rotateGlow {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
 
-        /* --- CATEGORY TABS GRID --- */
-        .category-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-
-        .cat-card {
-            background: linear-gradient(135deg, #1e293b, #0f172a);
-            border: 1px solid #334155;
-            border-radius: 12px;
-            padding: 15px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            height: 90px;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-            transition: transform 0.2s;
-        }
-
-        .cat-card:active { transform: scale(0.97); }
-
-        .cat-card.popular { background: linear-gradient(135deg, #2563eb, #1d4ed8); border-color: #3b82f6;}
-        .cat-card.lottery { background: linear-gradient(135deg, #db2777, #b5179e); border-color: #ec4899;}
-
-        .cat-card h3 { font-size: 1.1rem; font-weight: 700; z-index: 2; }
-        
-        .cat-card i {
-            position: absolute;
-            right: 15px;
-            bottom: 12px;
-            font-size: 2.2rem;
-            opacity: 0.3;
-            color: #fff;
-        }
-
-        /* Sub Categories (3 Columns) */
-        .sub-cat-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 8px;
-            margin-bottom: 25px;
-        }
-
-        .sub-card {
-            background: #1e293b;
-            border-radius: 10px;
-            padding: 12px 5px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 600;
-            border: 1px solid #334155;
-        }
-        .sub-card i {
-            display: block;
-            font-size: 1.5rem;
-            margin-bottom: 6px;
-            color: #f59e0b;
-        }
-
-        /* --- SECTION HEADING --- */
-        .section-title {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 12px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        .section-title i { color: #ef4444; }
-
-        /* --- GAMES LIST (RECOMMENDED) --- */
-        .games-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 25px;
-        }
-
-        .game-card {
-            background: #111827;
-            border: 1px solid #1f2937;
-            border-radius: 14px;
-            overflow: hidden;
-            position: relative;
-            cursor: pointer;
-        }
-
-        .game-banner {
-            height: 110px;
-            background: linear-gradient(45deg, #1e1b4b, #311042);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            position: relative;
-        }
-
-        /* Specific Game Colors for Premium Feel */
-        .aviator-bg { background: linear-gradient(135deg, #991b1b, #450a0a); }
-        .chicken-bg { background: linear-gradient(135deg, #ca8a04, #713f12); }
-        .vortex-bg { background: linear-gradient(135deg, #6b21a8, #3b0764); }
-        .jetx-bg { background: linear-gradient(135deg, #065f46, #022c22); }
-
-        .game-banner i {
-            font-size: 3rem;
-            text-shadow: 0 4px 10px rgba(0,0,0,0.5);
-        }
-
-        .game-info {
-            padding: 10px;
-            background: #1f2937;
-            text-align: center;
-        }
-
-        .game-name {
-            font-weight: 700;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 5px;
-        }
-
-        .rtp-bar {
-            background: #111827;
-            border-radius: 10px;
-            font-size: 0.7rem;
-            padding: 2px 6px;
-            color: #10b981;
-            font-weight: bold;
-            display: inline-block;
-        }
-
-        /* --- ADD TO DESKTOP BUTTON --- */
-        .add-desktop-btn {
-            background: linear-gradient(to right, #2563eb, #1d4ed8);
-            color: white;
-            width: 100%;
-            border: none;
-            padding: 12px;
-            border-radius: 25px;
-            font-weight: 700;
-            font-size: 0.95rem;
-            margin: 15px 0;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(37, 99, 235, 0.4);
-        }
-
-        /* --- BOTTOM NAVIGATION BAR --- */
-        .bottom-nav {
-            position: fixed;
-            bottom: 0;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 100%;
-            max-width: 500px;
-            background: #0f172a;
-            border-top: 1px solid #1e293b;
-            display: flex;
-            justify-content: space-around;
-            padding: 8px 0;
-            z-index: 999;
-        }
-
-        .nav-item {
-            text-align: center;
-            color: #94a3b8;
-            text-decoration: none;
-            font-size: 0.75rem;
-            font-weight: 600;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 4px;
-            flex: 1;
-        }
-
-        .nav-item.active { color: #f59e0b; }
-        .nav-item i { font-size: 1.3rem; }
-
-        /* Center Special Button */
-        .nav-item.center-btn {
-            position: relative;
-            top: -18px;
-            background: linear-gradient(to top, #f59e0b, #d97706);
-            color: #0f172a !important;
-            width: 58px;
-            height: 58px;
-            border-radius: 50%;
-            justify-content: center;
-            box-shadow: 0 4px 10px rgba(245, 158, 11, 0.4);
-            border: 4px solid #0b1120;
-            flex: none;
-        }
-        .nav-item.center-btn i { font-size: 1.4rem; }
-
-    </style>
+    /* Hover karne par aur solid dynamic effect */
+    .next-level-live:hover {
+      transform: scale(1.05);
+      border-color: #00ffcc;
+      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
+    }
+    .next-level-live:hover .main-dot, 
+    .next-level-live:hover .pulse-wave {
+      background-color: #00ffcc;
+      box-shadow: 0 0 15px #00ffcc;
+    }
+    .next-level-live:hover .live-text {
+      text-shadow: 0 0 15px #00ffcc;
+    }
+  </style>
 </head>
 <body>
 
-    <header>
-        <div class="logo">
-            <h1>Pandya Bet</h1>
-        </div>
-        <div class="wallet-box">
-            <i class="fa-solid fa-wallet"></i>
-            <span>₹<span id="balance">500.00</span></span>
-        </div>
-    </header>
-
-    <div class="notice-bar">
-        <i class="fa-solid fa-volume-high"></i>
-        <div class="marquee-container">
-            <p>Welcome to Pandya Bet! Secure deposit issues resolved. Send details directly to Pandya Bet self-service center for instant backup.</p>
-        </div>
+  <!-- Yeh raha tumhara real-time Live Icon -->
+  <div class="next-level-live">
+    <div class="live-dot-container">
+      <div class="main-dot"></div>
+      <div class="pulse-wave"></div>
     </div>
+    <span class="live-text">LIVE</span>
+  </div>
 
-    <div class="container">
-
-        <div class="category-grid">
-            <div class="cat-card popular">
-                <h3>Popular</h3>
-                <i class="fa-solid fa-trophy"></i>
-            </div>
-            <div class="cat-card lottery">
-                <h3>Lottery</h3>
-                <i class="fa-solid fa-ticket"></i>
-            </div>
-        </div>
-
-        <div class="sub-cat-grid">
-            <div class="sub-card"><i class="fa-solid fa-heart"></i>Casino</div>
-            <div class="sub-card"><i class="fa-solid fa-cubes"></i>Slots</div>
-            <div class="sub-card"><i class="fa-solid fa-baseball"></i>Sports</div>
-            <div class="sub-card"><i class="fa-solid fa-id-card"></i>Rummy</div>
-            <div class="sub-card"><i class="fa-solid fa-fish-fins"></i>Fishing</div>
-            <div class="sub-card"><i class="fa-solid fa-wand-magic-sparkles"></i>Original</div>
-        </div>
-
-        <div class="section-title">
-            <i class="fa-solid fa-fire"></i> Platform Recommendation
-        </div>
-
-        <div class="games-grid">
-            <div class="game-card" onclick="playGame('Aviator')">
-                <div class="game-banner aviator-bg">
-                    <i class="fa-solid fa-plane-departure" style="color: #fca5a5;"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Aviator</div>
-                    <div class="rtp-bar">RTP 97.67%</div>
-                </div>
-            </div>
-
-            <div class="game-card" onclick="playGame('Chicken Road 2')">
-                <div class="game-banner chicken-bg">
-                    <i class="fa-solid fa-egg" style="color: #fef08a;"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Chicken Road 2</div>
-                    <div class="rtp-bar">RTP 96.02%</div>
-                </div>
-            </div>
-
-            <div class="game-card" onclick="playGame('Vortex')">
-                <div class="game-banner vortex-bg">
-                    <i class="fa-solid fa-tornado" style="color: #e9d5ff;"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">Vortex</div>
-                    <div class="rtp-bar">RTP 96.95%</div>
-                </div>
-            </div>
-
-            <div class="game-card" onclick="playGame('JetX')">
-                <div class="game-banner jetx-bg">
-                    <i class="fa-solid fa-jet-fighter" style="color: #a7f3d0;"></i>
-                </div>
-                <div class="game-info">
-                    <div class="game-name">JetX</div>
-                    <div class="rtp-bar">RTP 98.10%</div>
-                </div>
-            </div>
-        </div>
-
-        <button class="add-desktop-btn">
-            <i class="fa-solid fa-circle-down"></i> Add to Desktop
-        </button>
-
-    </div>
-
-    <div class="bottom-nav">
-        <a href="#" class="nav-item active">
-            <i class="fa-solid fa-house"></i>
-            <span>Home</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-calendar-check"></i>
-            <span>Activity</span>
-        </a>
-        <a href="#" class="nav-item center-btn" onclick="openPromo()">
-            <i class="fa-solid fa-coins"></i>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-gift"></i>
-            <span>Promotion</span>
-        </a>
-        <a href="#" class="nav-item">
-            <i class="fa-solid fa-user"></i>
-            <span>Account</span>
-        </a>
-    </div>
-
-    <script>
-        // गेम क्लिक होने पर फंक्शन
-        function playGame(gameName) {
-            alert("🎯 Launching " + gameName + "... Loading Server Assets!");
-            // यहाँ आप गेम का म3यू या आईफ्रेम लिंक लोड कर सकते हैं
-        }
-
-        function openPromo() {
-            alert("🎁 Claim your Daily Bonus ₹500!");
-        }
-    </script>
 </body>
 </html>
