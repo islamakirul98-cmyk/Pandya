@@ -1,138 +1,110 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Next Level Live Icon</title>
-  <style>
-    /* Dark Background taaki neon icons ekdum solid chamke */
-    body {
-      background-color: #0b0c10;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
-      gap: 30px;
-      flex-direction: column;
-      font-family: 'Arial Black', sans-serif;
-    }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ranjan Gamer Live</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link href="https://vjs.zencdn.net/7.20.3/video-js.css" rel="stylesheet" />
+    
+    <style>
+        body { margin: 0; padding: 0; background-color: #0f1014; color: #ffffff; font-family: sans-serif; overflow-x: hidden; }
+        header { background: #0f1014; padding: 12px 15px; border-bottom: 1px solid #252833; }
+        .brand { font-size: 18px; font-weight: bold; text-transform: uppercase; }
+        .brand span { color: #1f80e0; }
 
-    /* --- NEXT LEVEL LIVE BADGE --- */
-    .next-level-live {
-      display: flex;
-      align-items: center;
-      background: linear-gradient(135deg, #1f1f2e, #14141f);
-      padding: 10px 22px;
-      border-radius: 12px;
-      border: 2px solid #ff0055;
-      box-shadow: 0 0 20px rgba(255, 0, 85, 0.4), inset 0 0 10px rgba(255, 0, 85, 0.2);
-      position: relative;
-      overflow: hidden;
-      transition: all 0.3s ease;
-    }
+        /* Video Player Section */
+        .player-container { width: 100%; max-width: 900px; margin: 0 auto; background: #000; position: relative; }
+        .video-js { width: 100% !important; height: auto; aspect-ratio: 16/9; }
 
-    /* Glow wave jo pure icon ke piche chalegi */
-    .next-level-live::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 0, 85, 0.15) 0%, transparent 70%);
-      animation: rotateGlow 4s linear infinite;
-    }
+        /* Premium Colourful Loading Spinner */
+        .vjs-loading-spinner {
+            border: none !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            width: 70px !important;
+            height: 70px !important;
+            margin-top: -35px !important;
+            margin-left: -35px !important;
+            background: none !important;
+        }
 
-    /* Red Dot with Wave Animation */
-    .live-dot-container {
-      position: relative;
-      width: 14px;
-      height: 14px;
-      margin-right: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
+        .vjs-loading-spinner:before, .vjs-loading-spinner:after {
+            content: "" !important;
+            position: absolute !important;
+            top: 0 !important; left: 0 !important;
+            width: 100% !important; height: 100% !important;
+            border-radius: 50% !important;
+            border: 5px solid transparent !important;
+            border-top-color: #ff0055 !important;
+            border-bottom-color: #00e5ff !important;
+            animation: vjs-spinner-spin 1s linear infinite !important;
+        }
 
-    .main-dot {
-      width: 12px;
-      height: 12px;
-      background-color: #ff0055;
-      border-radius: 50%;
-      box-shadow: 0 0 10px #ff0055;
-      z-index: 2;
-    }
+        .vjs-loading-spinner:after {
+            border-top-color: #72ff00 !important;
+            border-bottom-color: #ffb300 !important;
+            animation: vjs-spinner-spin 1.5s linear reverse infinite !important;
+        }
 
-    .pulse-wave {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background-color: #ff0055;
-      border-radius: 50%;
-      z-index: 1;
-      animation: heavyPulse 1.5s infinite ease-out;
-    }
+        @keyframes vjs-spinner-spin {
+            0% { transform: rotate(0deg); filter: hue-rotate(0deg); }
+            100% { transform: rotate(360deg); filter: hue-rotate(360deg); }
+        }
 
-    /* Neon Text Style */
-    .live-text {
-      color: #ffffff;
-      font-size: 18px;
-      font-weight: 900;
-      letter-spacing: 2px;
-      text-shadow: 0 0 8px rgba(255, 255, 255, 0.6), 0 0 15px #ff0055;
-      z-index: 2;
-      animation: textBlink 2s infinite alternate;
-    }
+        /* Title/Label for OmeTV */
+        .section-title {
+            padding: 10px 15px;
+            background: #16181f;
+            font-size: 14px;
+            font-weight: bold;
+            color: #1f80e0;
+            border-bottom: 1px solid #252833;
+            letter-spacing: 0.5px;
+        }
 
-    /* --- ANIMATIONS --- */
-    @keyframes heavyPulse {
-      0% {
-        transform: scale(1);
-        opacity: 0.8;
-      }
-      100% {
-        transform: scale(3);
-        opacity: 0;
-      }
-    }
+        /* --- DIRECT OmeTV FULL DISPLAY --- */
+        .ometv-container {
+            width: 100%;
+            background: #000;
+        }
 
-    @keyframes textBlink {
-      0%, 100% { opacity: 1; }
-      50% { opacity: 0.85; }
-    }
-
-    @keyframes rotateGlow {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    /* Hover karne par aur solid dynamic effect */
-    .next-level-live:hover {
-      transform: scale(1.05);
-      border-color: #00ffcc;
-      box-shadow: 0 0 30px rgba(0, 255, 204, 0.6);
-    }
-    .next-level-live:hover .main-dot, 
-    .next-level-live:hover .pulse-wave {
-      background-color: #00ffcc;
-      box-shadow: 0 0 15px #00ffcc;
-    }
-    .next-level-live:hover .live-text {
-      text-shadow: 0 0 15px #00ffcc;
-    }
-  </style>
+        .ometv-frame {
+            width: 100%;
+            height: 650px; /* Acchi scrolling aur view ke liye fluid height */
+            border: none;
+            background: #000;
+        }
+    </style>
 </head>
 <body>
 
-  <!-- Yeh raha tumhara real-time Live Icon -->
-  <div class="next-level-live">
-    <div class="live-dot-container">
-      <div class="main-dot"></div>
-      <div class="pulse-wave"></div>
-    </div>
-    <span class="live-text">LIVE</span>
-  </div>
+    <header>
+        <div class="brand">RANJAN <span>GAMER</span></div>
+    </header>
 
+    <div class="player-container">
+        <video id="my-video" class="video-js vjs-big-play-centered" controls preload="auto">
+            <source src="https://aps32.playlist.live-video.net/v1/playlist/CvAFT5sFYQWvziIVvWf4-qcMacUMy3GzyEjnulSbxLBnjXdZTSx6KntHxkwomZo9EOhEYVp0a2-VXRHLmrmU11bgjz3YPKsSxIk247-9nTIWTTQQXWtlAw1fNE-Wrx6LsG7xUcnmoVuS49JXJY6n4qCF-_BGlIvofAQTn5PLCWT7umJxckEkPDht0ZuyBTliN2qFM3_LEnKG95jfwlz7brOozkD06zYsyJq7YlH-kZUiUPcn1Tscoe3b_0AQwbVaC40Y-8wGzHJltWE3YSQ-ZeQQqdfrQxT4VWzJ6CeHYowpm8bNpZ0EeOtz5Tr8S9Hbt4qWmwYHpIk4VqCVH5n0cGSau0zyYKB5jwS6eFxdaagrBOtIux3DaqMURTPiWPIt8SJs7yRcGa2flV78UOUNX1n5KEIHsj6io-1q43bvFSe4THm1L-3mcrXBB1Pqi0Si-Lozs6FU0pbfFKzSfRAOqz4VkejJfHBoy_QJPoLnjwf21iORiUIS3MqyvcMVdFR-2Dh_xPx1l3oCeAJQfuXoTw4Epo_KHj-T9glvKpHpJaWE9tK5hmb9jQrbVeci4lII8djNavpfW7dkWn20q_bUio329Ysd2kCsiAGzjiHvFaj7aEntvBjBDJ1qp5PUaLAtiSaLUTH2sXH_e9_t78-SSIunv8VrZB0hYchvNqwiAzGTymEMLFCCbqGjHPBbpFgjX27vJhTVwDonvM9pkajNloR0qp_jPqaP1puus8SUSgbzsoLIdkrx6Oy3IEqLMk2pHR5S9mriPw64JD9Gm9HvKkQnI78XW15JyX59nqxtvTOASxUEh0li-1xO7Gnnxa1KO4sftXMlmncIMpSaZsjmmwVH2XIg_f1fMjPkugbJmudvKDcDK9Qax3VsHd3pY1iVf9f6ElF9xTCdvd11rIpYtU8pzbCf-_h3ZfUhlHiqJS9G06BsUcko5hMYam7W5eN3HGGmwQfSw-pu69dd4QkfPzKiIRpmOyFbACb_50qGTpQ8GOMaDPTc-5cROSR8OuCM8iABKgl1cy13ZXN0LTIw4Q4.m3u8" type="application/x-mpegURL">
+        </video>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-video"></i> OMETV LIVE STREAM CONNECTED</div>
+
+    <div class="ometv-container">
+        <iframe src="https://m.ome.tv/" class="ometv-frame" allow="camera; microphone; display-capture"></iframe>
+    </div>
+
+    <script src="https://vjs.zencdn.net/7.20.3/video.min.js"></script>
+    <script>
+        var player = videojs('my-video');
+        
+        // Fullscreen Landscape fix
+        player.on('fullscreenchange', function() {
+            if (player.isFullscreen() && screen.orientation) {
+                screen.orientation.lock("landscape").catch(e => {});
+            }
+        });
+    </script>
 </body>
 </html>
